@@ -41,7 +41,7 @@
   <div id="map"></div>
   <div class="panel">
     <h1>Banff & Calgary Sep 2026</h1>
-    <div>22 stops · routes follow real coords · optional pins have no route lines.</div>
+    <div>22 stops · shared highways split into parallel lanes by day color.</div>
     <div class="legend">
       <div><span class="dot" style="background:#2563eb"></span> Lodging</div>
       <div><span class="dot" style="background:#ca8a04"></span> Activity</div>
@@ -146,6 +146,64 @@
       return [start, ...mids, end];
     }
 
+    const legLanes = {
+      "hampton|hi-12": 1,
+      "hi-18|yyc-out": -1,
+      "johnston|redstreak": 1,
+      "redstreak|hi-14": -1,
+      "d17|bow": 1,
+      "bow|peyto": 1,
+      "peyto|icefield": 1,
+      "icefield|d5": -1,
+    };
+
+    const corridorUse = new Map();
+
+    function corridorId(fromId, toId) {
+      const a = pt(fromId);
+      const b = pt(toId);
+      const k1 = `${a[0].toFixed(3)},${a[1].toFixed(3)}`;
+      const k2 = `${b[0].toFixed(3)},${b[1].toFixed(3)}`;
+      return k1 < k2 ? `${k1}|${k2}` : `${k2}|${k1}`;
+    }
+
+    function getLane(fromId, toId) {
+      const key = legKey(fromId, toId);
+      if (legLanes[key] !== undefined) return legLanes[key];
+      const cid = corridorId(fromId, toId);
+      const n = corridorUse.get(cid) || 0;
+      corridorUse.set(cid, n + 1);
+      return n % 2 === 0 ? 1 : -1;
+    }
+
+    /** Pin endpoints; separate only the middle of shared highways. */
+    function separatePath(points, lane) {
+      if (!lane || points.length < 2) return points;
+      const last = points.length - 1;
+      return points.map((p, i) => {
+        const fade = Math.sin(Math.PI * (i / last));
+        const prev = points[Math.max(0, i - 1)];
+        const next = points[Math.min(last, i + 1)];
+        const dLat = next[0] - prev[0];
+        const dLng = next[1] - prev[1];
+        const len = Math.hypot(dLat, dLng) || 1;
+        const off = lane * 0.005 * fade;
+        return [p[0] - (dLng / len) * off, p[1] + (dLat / len) * off];
+      });
+    }
+
+    function drawLeg(fromId, toId, style) {
+      const path = separatePath(driveLeg(fromId, toId), getLane(fromId, toId));
+      L.polyline(path, {
+        color: style.color,
+        weight: style.weight,
+        opacity: 0.9,
+        dashArray: style.dash || null,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
+    }
+
     function cellKey(lat, lng) { return `${lat.toFixed(4)},${lng.toFixed(4)}`; }
 
     function markerGroups(list) {
@@ -183,16 +241,7 @@
     }).addTo(map);
 
     routeGroups.forEach((group) => {
-      group.legs.forEach(([fromId, toId]) => {
-        L.polyline(driveLeg(fromId, toId), {
-          color: group.color,
-          weight: group.weight,
-          opacity: 0.9,
-          dashArray: group.dash || null,
-          lineCap: "round",
-          lineJoin: "round",
-        }).addTo(map);
-      });
+      group.legs.forEach(([fromId, toId]) => drawLeg(fromId, toId, group));
     });
 
     const bounds = [];
