@@ -13,6 +13,7 @@
     .leaflet-popup-content h3 { margin: 0 0 6px; font-size: 14px; }
     .leaflet-popup-content p { margin: 4px 0; }
     .tag { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #e8f0fe; color: #1a56db; margin-bottom: 6px; }
+    .tag.opt { background: #f3f4f6; color: #6b7280; }
     .pin {
       width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff;
       color: #fff; font-size: 11px; font-weight: 700;
@@ -22,14 +23,16 @@
     .panel {
       position: absolute; top: 12px; right: 12px; z-index: 1000;
       background: #fff; border-radius: 8px; padding: 12px 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.15); max-width: 280px; font-size: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.15); max-width: 300px; font-size: 12px;
+      max-height: calc(100vh - 24px); overflow-y: auto;
     }
     .panel h1 { margin: 0 0 8px; font-size: 15px; }
-    .panel ul { margin: 8px 0 0; padding-left: 18px; }
     .legend { margin-top: 8px; }
-    .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .legend > div { margin: 3px 0; }
+    .legend span { display: inline-block; width: 18px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+    .legend .dot { width: 10px; height: 10px; border-radius: 50%; }
     @media (max-width: 520px) {
-      .panel { left: 12px; right: 12px; max-width: none; top: auto; bottom: 12px; }
+      .panel { left: 12px; right: 12px; max-width: none; top: auto; bottom: 12px; max-height: 42vh; }
     }
   </style>
 </head>
@@ -37,60 +40,90 @@
   <div id="map"></div>
   <div class="panel">
     <h1>Banff & Calgary Sep 2026</h1>
-    <div>Numbered pins — tap for details. Overlapping stops are spread so all show.</div>
+    <div>22 stops · colored cable routes by day (orthogonal lanes, no overlap).</div>
     <div class="legend">
-      <div><span style="background:#2563eb"></span> Lodging</div>
-      <div><span style="background:#ca8a04"></span> Activity</div>
-      <div><span style="background:#64748b"></span> Transport</div>
+      <div><span class="dot" style="background:#2563eb"></span> Lodging</div>
+      <div><span class="dot" style="background:#ca8a04"></span> Activity</div>
+      <div><span class="dot" style="background:#64748b"></span> Transport</div>
+      <div><span class="dot" style="background:#9ca3af"></span> Optional</div>
+      <div style="margin-top:8px;font-weight:600">Route by day</div>
+      <div><span style="background:#64748b"></span> Sep 11 travel</div>
+      <div><span style="background:#3b82f6"></span> Sep 12 west</div>
+      <div><span style="background:#f59e0b"></span> Sep 13 canyon + Radium</div>
+      <div><span style="background:#06b6d4"></span> Sep 14 return north</div>
+      <div><span style="background:#10b981"></span> Sep 15 lakes</div>
+      <div><span style="background:#8b5cf6"></span> Sep 16 light day</div>
+      <div><span style="background:#ef4444"></span> Sep 17 Icefields</div>
+      <div><span style="background:#9ca3af"></span> Sep 18 optional</div>
+      <div><span style="background:#475569"></span> Sep 19 return</div>
     </div>
   </div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const colors = { lodging: "#2563eb", activity: "#ca8a04", transport: "#64748b" };
+    const colors = { lodging: "#2563eb", activity: "#ca8a04", transport: "#64748b", optional: "#9ca3af" };
 
-    /** True lat/lng + display spread when multiple stops share a spot */
     const stops = [
       { n: 1, id: "yyc-in", name: "YYC arrival", lat: 51.1215, lng: -114.0076, kind: "transport", day: "Sep 11",
         html: "<span class='tag'>Sep 11</span><h3>Calgary YYC arrival</h3><p>Flair lands 18:15 · Turo pick-up 19:00</p>" },
       { n: 2, id: "hampton", name: "Hampton Inn", lat: 51.1351, lng: -114.045, kind: "lodging", day: "Sep 11",
         html: "<span class='tag'>Sep 11 night</span><h3>Hampton Inn Airport North</h3><p>Breakfast incl. · first night</p>" },
       { n: 3, id: "hi-12", name: "HI Banff (12)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 12",
-        html: "<span class='tag'>Sep 12</span><h3>HI Banff Alpine Centre</h3><p>Ref 5164644914 · PIN 9709</p><p>Minnewanka · Two Jack · Banff town</p>" },
+        html: "<span class='tag'>Sep 12</span><h3>HI Banff Alpine Centre</h3><p>Ref 5164644914 · PIN 9709</p>" },
       { n: 4, id: "johnston", name: "Johnston Canyon", lat: 51.2453, lng: -115.84, kind: "activity", day: "Sep 13",
-        html: "<span class='tag'>Sep 13 AM</span><h3>Johnston Canyon</h3><p>HI checkout ~11:00 · hike then drive south</p>" },
+        html: "<span class='tag'>Sep 13 AM</span><h3>Johnston Canyon</h3><p>HI checkout ~11:00 · start early</p>" },
       { n: 5, id: "redstreak", name: "Redstreak A2", lat: 50.6342, lng: -116.0712, kind: "lodging", day: "Sep 13",
-        html: "<span class='tag'>Sep 13–14</span><h3>Redstreak oTENTik A2</h3><p>INPC26-59887450B1 · check-in 15:00 · fire ban</p>" },
-      { n: 6, id: "yoho", name: "Emerald Lake", lat: 51.4432, lng: -116.5379, kind: "activity", day: "Sep 14",
-        html: "<span class='tag'>Sep 14</span><h3>Yoho NP</h3><p>Checkout Redstreak 11:00 · Emerald Lake · Takakkaw Falls</p>" },
+        html: "<span class='tag'>Sep 13–14</span><h3>Redstreak oTENTik A2</h3><p>INPC26-59887450B1 · check-in 15:00</p>" },
+      { n: 6, id: "radium-springs", name: "Radium Hot Springs", lat: 50.6167, lng: -116.0747, kind: "activity", day: "Sep 13–14",
+        html: "<span class='tag'>Sep 13 eve or Sep 14 AM</span><h3>Radium Hot Springs</h3><p>Walk-in · ~2 km trail from Redstreak H Loop · ~$20/adult + pass</p>" },
       { n: 7, id: "hi-14", name: "HI Banff (14)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 14",
         html: "<span class='tag'>Sep 14 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5825418201 · PIN 8573</p>" },
       { n: 8, id: "moraine", name: "Moraine Lake", lat: 51.3557, lng: -116.1844, kind: "activity", day: "Sep 15",
-        html: "<span class='tag'>Sep 15 AM</span><h3>Moraine Lake shuttle</h3><p>Book Sep 13 10:00 EDT · backup Sep 17</p>" },
-      { n: 9, id: "twojack", name: "Two Jack 52", lat: 51.2108, lng: -115.5608, kind: "lodging", day: "Sep 15",
+        html: "<span class='tag'>Sep 15 AM (primary)</span><h3>Moraine Lake shuttle</h3><p>Book Sep 13 10:00 EDT · backup Sep 16 AM (book Sep 14 10:00 EDT)</p>" },
+      { n: 9, id: "louise", name: "Lake Louise", lat: 51.4254, lng: -116.1773, kind: "activity", day: "Sep 15",
+        html: "<span class='tag'>Sep 15 AM</span><h3>Lake Louise</h3><p>Via Lake Connector from Moraine if time</p>" },
+      { n: 10, id: "twojack", name: "Two Jack 52", lat: 51.2108, lng: -115.5608, kind: "lodging", day: "Sep 15",
         html: "<span class='tag'>Sep 15–16</span><h3>Two Jack oTENTik 52</h3><p>INPC26-59538853B1 · check-in 15:00</p>" },
-      { n: 10, id: "d17", name: "Tunnel Mtn D17", lat: 51.1834, lng: -115.5448, kind: "lodging", day: "Sep 16",
-        html: "<span class='tag'>Sep 16 light day</span><h3>Tunnel Mountain V2 D17</h3><p>Checkout Two Jack 11:00 · check-in 15:00</p>" },
-      { n: 11, id: "bow", name: "Bow Lake", lat: 51.7131, lng: -116.4664, kind: "activity", day: "Sep 17",
-        html: "<span class='tag'>Sep 17</span><h3>Bow Lake · Peyto Lake</h3><p>Icefields Parkway north</p>" },
-      { n: 12, id: "icefield", name: "Columbia Icefield", lat: 52.2203, lng: -117.2242, kind: "activity", day: "Sep 17",
-        html: "<span class='tag'>Sep 17</span><h3>Columbia Icefield</h3><p>Viewpoints only — skip paid Glacier tour</p>" },
-      { n: 13, id: "d5", name: "Tunnel Mtn D5", lat: 51.1826, lng: -115.5485, kind: "lodging", day: "Sep 17",
+      { n: 11, id: "minnewanka", name: "Lake Minnewanka", lat: 51.2472, lng: -115.5417, kind: "activity", day: "Sep 15–16",
+        html: "<span class='tag'>Sep 15 eve or Sep 16 AM</span><h3>Lake Minnewanka</h3><p>~5 min from Two Jack campground</p>" },
+      { n: 12, id: "d17", name: "Tunnel Mtn D17", lat: 51.1834, lng: -115.5448, kind: "lodging", day: "Sep 16",
+        html: "<span class='tag'>Sep 16–17</span><h3>Tunnel Mountain V2 D17</h3><p>Light day · check-in 15:00 · Moraine backup AM if needed</p>" },
+      { n: 13, id: "bow", name: "Bow Lake", lat: 51.7131, lng: -116.4664, kind: "activity", day: "Sep 17",
+        html: "<span class='tag'>Sep 17</span><h3>Bow Lake</h3><p>Icefields Parkway stop</p>" },
+      { n: 14, id: "peyto", name: "Peyto Lake", lat: 51.7283, lng: -116.5078, kind: "activity", day: "Sep 17",
+        html: "<span class='tag'>Sep 17</span><h3>Peyto Lake lookout</h3><p>Icefields Parkway stop</p>" },
+      { n: 15, id: "icefield", name: "Columbia Icefield", lat: 52.2203, lng: -117.2242, kind: "activity", day: "Sep 17",
+        html: "<span class='tag'>Sep 17</span><h3>Columbia Icefield viewpoints</h3><p>Full day · skip paid Glacier Adventure unless splurge</p>" },
+      { n: 16, id: "d5", name: "Tunnel Mtn D5", lat: 51.1826, lng: -115.5485, kind: "lodging", day: "Sep 17",
         html: "<span class='tag'>Sep 17–18</span><h3>Tunnel Mountain V2 D5</h3><p>INPC26-60395520B1 · check-in 15:00</p>" },
-      { n: 14, id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "activity", day: "Sep 18",
-        html: "<span class='tag'>Sep 18</span><h3>Canmore · Grassi Lakes</h3><p>V2 checkout 11:00</p>" },
-      { n: 15, id: "hi-18", name: "HI Banff (18)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 18",
+      { n: 17, id: "banff-town", name: "Banff town", lat: 51.1784, lng: -115.5708, kind: "optional", day: "Sep 18",
+        html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff town · Bow Falls</h3><p>Open afternoon after V2 checkout</p>" },
+      { n: 18, id: "vermilion", name: "Vermilion Lakes", lat: 51.1842, lng: -115.5986, kind: "optional", day: "Sep 18",
+        html: "<span class='tag opt'>Sep 18 optional</span><h3>Vermilion Lakes</h3><p>Easy sunset walk near Banff</p>" },
+      { n: 19, id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "optional", day: "Sep 18",
+        html: "<span class='tag opt'>Sep 18 optional</span><h3>Canmore · Grassi Lakes</h3><p>Low-effort afternoon option</p>" },
+      { n: 20, id: "upper-springs", name: "Banff Upper Hot Springs", lat: 51.1511, lng: -115.5611, kind: "optional", day: "Sep 18",
+        html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff Upper Hot Springs</h3><p>~$20/adult · walk-in</p>" },
+      { n: 21, id: "hi-18", name: "HI Banff (18)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 18",
         html: "<span class='tag'>Sep 18 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5571085239 · PIN 8886</p>" },
-      { n: 16, id: "yyc-out", name: "YYC return", lat: 51.1215, lng: -114.0076, kind: "transport", day: "Sep 19",
-        html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo return 16:00 · flight 00:50 Sep 20</p>" },
+      { n: 22, id: "yyc-out", name: "YYC return", lat: 51.1215, lng: -114.0076, kind: "transport", day: "Sep 19",
+        html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo 16:00 · flight 00:50 Sep 20</p>" },
     ];
 
-    const routeOrder = ["yyc-in","hampton","hi-12","johnston","redstreak","yoho","hi-14","moraine","twojack","d17","bow","icefield","d5","canmore","hi-18","yyc-out"];
+    /** Day-colored route groups — each inner array is an ordered chain of stop ids */
+    const routeGroups = [
+      { day: "Sep 11", color: "#64748b", weight: 4, dash: null, ids: ["yyc-in", "hampton"] },
+      { day: "Sep 12", color: "#3b82f6", weight: 4, dash: null, ids: ["hampton", "hi-12"] },
+      { day: "Sep 13", color: "#f59e0b", weight: 4, dash: null, ids: ["hi-12", "johnston", "redstreak", "radium-springs"] },
+      { day: "Sep 14", color: "#06b6d4", weight: 4, dash: null, ids: ["redstreak", "hi-14"] },
+      { day: "Sep 15", color: "#10b981", weight: 4, dash: null, ids: ["hi-14", "moraine", "louise", "twojack", "minnewanka"] },
+      { day: "Sep 16", color: "#8b5cf6", weight: 4, dash: null, ids: ["minnewanka", "d17"] },
+      { day: "Sep 17", color: "#ef4444", weight: 4, dash: null, ids: ["d17", "bow", "peyto", "icefield", "d5"] },
+      { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "8 6", ids: ["d5", "banff-town", "vermilion", "canmore", "upper-springs", "hi-18"] },
+      { day: "Sep 19", color: "#475569", weight: 4, dash: null, ids: ["hi-18", "yyc-out"] },
+    ];
 
-    function cellKey(lat, lng) {
-      return lat.toFixed(4) + "," + lng.toFixed(4);
-    }
+    function cellKey(lat, lng) { return lat.toFixed(4) + "," + lng.toFixed(4); }
 
-    /** Fan out markers that share the same coordinates */
     function spreadStops(list) {
       const groups = new Map();
       list.forEach((s) => {
@@ -106,12 +139,69 @@
         const angle = (2 * Math.PI * idx) / total - Math.PI / 2;
         const r = 0.012 + (total > 3 ? 0.006 : 0);
         const cos = Math.cos(s.lat * Math.PI / 180);
-        return {
-          ...s,
-          dlat: s.lat + r * Math.cos(angle),
-          dlng: s.lng + (r * Math.sin(angle)) / cos,
-        };
+        return { ...s, dlat: s.lat + r * Math.cos(angle), dlng: s.lng + (r * Math.sin(angle)) / cos };
       });
+    }
+
+    /** Orthogonal cable route with rounded corners and per-leg lane offset */
+    function cableLeg(a, b, lane) {
+      const latA = a[0], lngA = a[1], latB = b[0], lngB = b[1];
+      const laneShift = lane * 0.035;
+      const preferLatFirst = lane % 2 === 0;
+      const midLat = latA + (latB - latA) * 0.5 + (preferLatFirst ? laneShift : -laneShift * 0.35);
+      const midLng = lngA + (lngB - lngA) * 0.5 + (preferLatFirst ? -laneShift * 0.35 : laneShift);
+
+      let c1, c2;
+      if (preferLatFirst) {
+        c1 = [midLat, lngA];
+        c2 = [midLat, lngB];
+      } else {
+        c1 = [latA, midLng];
+        c2 = [latB, midLng];
+      }
+
+      return roundCablePath([[latA, lngA], c1, c2, [latB, lngB]]);
+    }
+
+    function roundCablePath(points) {
+      if (points.length < 3) return points;
+      const out = [points[0]];
+      const r = 0.018;
+      for (let i = 1; i < points.length - 1; i++) {
+        const prev = points[i - 1], cur = points[i], next = points[i + 1];
+        const d1 = [cur[0] - prev[0], cur[1] - prev[1]];
+        const d2 = [next[0] - cur[0], next[1] - cur[1]];
+        const len1 = Math.hypot(d1[0], d1[1]) || 1;
+        const len2 = Math.hypot(d2[0], d2[1]) || 1;
+        const t1 = Math.min(r / len1, 0.45);
+        const t2 = Math.min(r / len2, 0.45);
+        const before = [cur[0] - d1[0] * t1, cur[1] - d1[1] * t1];
+        const after = [cur[0] + d2[0] * t2, cur[1] + d2[1] * t2];
+        out.push(before);
+        for (let s = 1; s <= 3; s++) {
+          const t = s / 3;
+          const mt = 1 - t;
+          out.push([
+            mt * mt * before[0] + 2 * mt * t * cur[0] + t * t * after[0],
+            mt * mt * before[1] + 2 * mt * t * cur[1] + t * t * after[1],
+          ]);
+        }
+        out.push(after);
+      }
+      out.push(points[points.length - 1]);
+      return out;
+    }
+
+    function buildGroupPath(ids, byId, laneBase) {
+      const path = [];
+      for (let i = 0; i < ids.length - 1; i++) {
+        const a = byId(ids[i]);
+        const b = byId(ids[i + 1]);
+        const leg = cableLeg([a.dlat, a.dlng], [b.dlat, b.dlng], laneBase + i);
+        if (path.length) leg.shift();
+        path.push(...leg);
+      }
+      return path;
     }
 
     function pinIcon(n, color) {
@@ -132,23 +222,26 @@
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    L.polyline(
-      routeOrder.map((id) => {
-        const s = byId(id);
-        return [s.dlat, s.dlng];
-      }),
-      { color: "#2563eb", weight: 4, opacity: 0.75 }
-    ).addTo(map);
+    routeGroups.forEach((group, gi) => {
+      const path = buildGroupPath(group.ids, byId, gi * 2);
+      L.polyline(path, {
+        color: group.color,
+        weight: group.weight,
+        opacity: 0.88,
+        dashArray: group.dash || null,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
+    });
 
     const bounds = [];
     placed.forEach((s) => {
       bounds.push([s.dlat, s.dlng]);
       L.marker([s.dlat, s.dlng], { icon: pinIcon(s.n, colors[s.kind]), zIndexOffset: 1000 - s.n })
         .bindPopup(s.html)
-        .bindTooltip(`${s.n}. ${s.name} (${s.day})`, { direction: "top", offset: [0, -12], permanent: false })
+        .bindTooltip(`${s.n}. ${s.name} (${s.day})`, { direction: "top", offset: [0, -12] })
         .addTo(map);
     });
-
     map.fitBounds(L.latLngBounds(bounds), { padding: [48, 48] });
   </script>
 </body>
