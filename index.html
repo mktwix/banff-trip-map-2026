@@ -40,7 +40,7 @@
   <div id="map"></div>
   <div class="panel">
     <h1>Banff & Calgary Sep 2026</h1>
-    <div>22 stops · colored cable routes by day (orthogonal lanes, no overlap).</div>
+    <div>22 stops · colored driving routes by day (highway waypoints, not grid lines).</div>
     <div class="legend">
       <div><span class="dot" style="background:#2563eb"></span> Lodging</div>
       <div><span class="dot" style="background:#ca8a04"></span> Activity</div>
@@ -109,17 +109,26 @@
         html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo 16:00 · flight 00:50 Sep 20</p>" },
     ];
 
-    /** Day-colored route groups — each inner array is an ordered chain of stop ids */
+    /** Approximate highway waypoints (Hwy 1 / 93) for long legs — [lat, lng] */
+    const via = {
+      "hampton|hi-12": [[51.054, -114.38], [51.089, -115.36], [51.162, -115.52]],
+      "johnston|redstreak": [[51.18, -115.72], [50.98, -115.88], [50.78, -116.02]],
+      "hi-14|moraine": [[51.24, -115.68], [51.32, -116.02]],
+      "louise|twojack": [[51.36, -116.08], [51.28, -115.62]],
+      "d17|bow": [[51.42, -116.18], [51.58, -116.32]],
+      "hi-18|yyc-out": [[51.162, -115.52], [51.089, -115.36], [51.054, -114.38]],
+    };
+
     const routeGroups = [
-      { day: "Sep 11", color: "#64748b", weight: 4, dash: null, ids: ["yyc-in", "hampton"] },
-      { day: "Sep 12", color: "#3b82f6", weight: 4, dash: null, ids: ["hampton", "hi-12"] },
-      { day: "Sep 13", color: "#f59e0b", weight: 4, dash: null, ids: ["hi-12", "johnston", "redstreak", "radium-springs"] },
-      { day: "Sep 14", color: "#06b6d4", weight: 4, dash: null, ids: ["redstreak", "hi-14"] },
-      { day: "Sep 15", color: "#10b981", weight: 4, dash: null, ids: ["hi-14", "moraine", "louise", "twojack", "minnewanka"] },
-      { day: "Sep 16", color: "#8b5cf6", weight: 4, dash: null, ids: ["minnewanka", "d17"] },
-      { day: "Sep 17", color: "#ef4444", weight: 4, dash: null, ids: ["d17", "bow", "peyto", "icefield", "d5"] },
-      { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "8 6", ids: ["d5", "banff-town", "vermilion", "canmore", "upper-springs", "hi-18"] },
-      { day: "Sep 19", color: "#475569", weight: 4, dash: null, ids: ["hi-18", "yyc-out"] },
+      { day: "Sep 11", color: "#64748b", weight: 4, dash: null, legs: [["yyc-in", "hampton"]] },
+      { day: "Sep 12", color: "#3b82f6", weight: 4, dash: null, legs: [["hampton", "hi-12"]] },
+      { day: "Sep 13", color: "#f59e0b", weight: 4, dash: null, legs: [["hi-12", "johnston"], ["johnston", "redstreak"], ["redstreak", "radium-springs"]] },
+      { day: "Sep 14", color: "#06b6d4", weight: 4, dash: null, legs: [["redstreak", "hi-14"]] },
+      { day: "Sep 15", color: "#10b981", weight: 4, dash: null, legs: [["hi-14", "moraine"], ["moraine", "louise"], ["louise", "twojack"], ["twojack", "minnewanka"]] },
+      { day: "Sep 16", color: "#8b5cf6", weight: 4, dash: null, legs: [["minnewanka", "d17"]] },
+      { day: "Sep 17", color: "#ef4444", weight: 4, dash: null, legs: [["d17", "bow"], ["bow", "peyto"], ["peyto", "icefield"], ["icefield", "d5"]] },
+      { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "8 6", legs: [["d5", "banff-town"], ["d5", "vermilion"], ["d5", "canmore"], ["d5", "upper-springs"], ["banff-town", "hi-18"]] },
+      { day: "Sep 19", color: "#475569", weight: 4, dash: null, legs: [["hi-18", "yyc-out"]] },
     ];
 
     function cellKey(lat, lng) { return lat.toFixed(4) + "," + lng.toFixed(4); }
@@ -143,65 +152,28 @@
       });
     }
 
-    /** Orthogonal cable route with rounded corners and per-leg lane offset */
-    function cableLeg(a, b, lane) {
-      const latA = a[0], lngA = a[1], latB = b[0], lngB = b[1];
-      const laneShift = lane * 0.035;
-      const preferLatFirst = lane % 2 === 0;
-      const midLat = latA + (latB - latA) * 0.5 + (preferLatFirst ? laneShift : -laneShift * 0.35);
-      const midLng = lngA + (lngB - lngA) * 0.5 + (preferLatFirst ? -laneShift * 0.35 : laneShift);
+    function legKey(fromId, toId) { return `${fromId}|${toId}`; }
 
-      let c1, c2;
-      if (preferLatFirst) {
-        c1 = [midLat, lngA];
-        c2 = [midLat, lngB];
-      } else {
-        c1 = [latA, midLng];
-        c2 = [latB, midLng];
-      }
-
-      return roundCablePath([[latA, lngA], c1, c2, [latB, lngB]]);
+    function driveLeg(fromId, toId, byId) {
+      const a = byId(fromId);
+      const b = byId(toId);
+      const start = [a.dlat, a.dlng];
+      const end = [b.dlat, b.dlng];
+      const key = legKey(fromId, toId);
+      const revKey = legKey(toId, fromId);
+      const mids = via[key] || (via[revKey] ? [...via[revKey]].reverse() : []);
+      return [start, ...mids, end];
     }
 
-    function roundCablePath(points) {
-      if (points.length < 3) return points;
-      const out = [points[0]];
-      const r = 0.018;
-      for (let i = 1; i < points.length - 1; i++) {
-        const prev = points[i - 1], cur = points[i], next = points[i + 1];
-        const d1 = [cur[0] - prev[0], cur[1] - prev[1]];
-        const d2 = [next[0] - cur[0], next[1] - cur[1]];
-        const len1 = Math.hypot(d1[0], d1[1]) || 1;
-        const len2 = Math.hypot(d2[0], d2[1]) || 1;
-        const t1 = Math.min(r / len1, 0.45);
-        const t2 = Math.min(r / len2, 0.45);
-        const before = [cur[0] - d1[0] * t1, cur[1] - d1[1] * t1];
-        const after = [cur[0] + d2[0] * t2, cur[1] + d2[1] * t2];
-        out.push(before);
-        for (let s = 1; s <= 3; s++) {
-          const t = s / 3;
-          const mt = 1 - t;
-          out.push([
-            mt * mt * before[0] + 2 * mt * t * cur[0] + t * t * after[0],
-            mt * mt * before[1] + 2 * mt * t * cur[1] + t * t * after[1],
-          ]);
-        }
-        out.push(after);
-      }
-      out.push(points[points.length - 1]);
-      return out;
-    }
-
-    function buildGroupPath(ids, byId, laneBase) {
-      const path = [];
-      for (let i = 0; i < ids.length - 1; i++) {
-        const a = byId(ids[i]);
-        const b = byId(ids[i + 1]);
-        const leg = cableLeg([a.dlat, a.dlng], [b.dlat, b.dlng], laneBase + i);
-        if (path.length) leg.shift();
-        path.push(...leg);
-      }
-      return path;
+    function drawLeg(map, fromId, toId, byId, style) {
+      L.polyline(driveLeg(fromId, toId, byId), {
+        color: style.color,
+        weight: style.weight,
+        opacity: 0.85,
+        dashArray: style.dash || null,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
     }
 
     function pinIcon(n, color) {
@@ -222,16 +194,10 @@
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    routeGroups.forEach((group, gi) => {
-      const path = buildGroupPath(group.ids, byId, gi * 2);
-      L.polyline(path, {
-        color: group.color,
-        weight: group.weight,
-        opacity: 0.88,
-        dashArray: group.dash || null,
-        lineCap: "round",
-        lineJoin: "round",
-      }).addTo(map);
+    routeGroups.forEach((group) => {
+      group.legs.forEach(([fromId, toId]) => {
+        drawLeg(map, fromId, toId, byId, group);
+      });
     });
 
     const bounds = [];
