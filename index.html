@@ -41,7 +41,7 @@
   <div id="map"></div>
   <div class="panel">
     <h1>Banff & Calgary Sep 2026</h1>
-    <div>22 stops · outbound/return use separate corridors · optional day is dashed.</div>
+    <div>Synced to trip calendar · outbound/return on separate corridors · Sep 18 options as dashed spurs.</div>
     <div class="legend">
       <div><span class="dot" style="background:#2563eb"></span> Lodging</div>
       <div><span class="dot" style="background:#ca8a04"></span> Activity</div>
@@ -52,10 +52,10 @@
       <div><span style="background:#3b82f6"></span> Sep 12 west</div>
       <div><span style="background:#f59e0b"></span> Sep 13 canyon + Radium</div>
       <div><span style="background:#06b6d4"></span> Sep 14 return north</div>
-      <div><span style="background:#10b981"></span> Sep 15 lakes</div>
-      <div><span style="background:#8b5cf6"></span> Sep 16 light day</div>
-      <div><span style="background:#ef4444"></span> Sep 17 Icefields</div>
-      <div><span style="background:#9ca3af;border-top:2px dashed #9ca3af;height:0"></span> Sep 18 optional loop</div>
+      <div><span style="background:#10b981"></span> Sep 15 Moraine + Minnewanka</div>
+      <div><span style="background:#8b5cf6"></span> Sep 16 to Tunnel Mtn</div>
+      <div><span style="background:#ef4444"></span> Sep 17 Icefields (fixed)</div>
+      <div><span style="background:#9ca3af;border-top:2px dashed #9ca3af;height:0"></span> Sep 18 HI + optional picks</div>
       <div><span style="background:#475569"></span> Sep 19 return</div>
     </div>
   </div>
@@ -65,55 +65,52 @@
 
     const stops = [
       { n: 1, id: "yyc-in", name: "YYC arrival", lat: 51.1215, lng: -114.0076, kind: "transport", day: "Sep 11",
-        html: "<span class='tag'>Sep 11</span><h3>Calgary YYC arrival</h3><p>Flair lands 18:15 · Turo pick-up 19:00</p>" },
+        html: "<span class='tag'>Sep 11</span><h3>Calgary YYC arrival</h3><p>Flair F8 621 lands 18:15 · Turo pick-up 19:00</p>" },
       { n: 2, id: "hampton", name: "Hampton Inn", lat: 51.1351, lng: -114.045, kind: "lodging", day: "Sep 11",
-        html: "<span class='tag'>Sep 11 night</span><h3>Hampton Inn Airport North</h3><p>Breakfast incl. · first night</p>" },
+        html: "<span class='tag'>Sep 11 night</span><h3>Hampton Inn Airport North</h3><p>Breakfast incl. · checkout by 12:00 Sep 12</p>" },
       { n: 3, id: "hi-12", name: "HI Banff (12)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 12",
-        html: "<span class='tag'>Sep 12</span><h3>HI Banff Alpine Centre</h3><p>Ref 5164644914 · PIN 9709</p>" },
+        html: "<span class='tag'>Sep 12</span><h3>HI Banff Alpine Centre</h3><p>Ref 5164644914 · PIN 9709 · CAD 271.73 · pay at property</p>" },
       { n: 4, id: "johnston", name: "Johnston Canyon", lat: 51.2453, lng: -115.84, kind: "activity", day: "Sep 13",
-        html: "<span class='tag'>Sep 13 AM</span><h3>Johnston Canyon</h3><p>HI checkout ~11:00 · start early</p>" },
+        html: "<span class='tag'>Sep 13 AM</span><h3>Johnston Canyon</h3><p>From HI Banff · checkout ~11:00 · start early</p>" },
       { n: 5, id: "redstreak", name: "Redstreak A2", lat: 50.6342, lng: -116.0712, kind: "lodging", day: "Sep 13",
-        html: "<span class='tag'>Sep 13–14</span><h3>Redstreak oTENTik A2</h3><p>INPC26-59887450B1 · check-in 15:00</p>" },
+        html: "<span class='tag'>Sep 13–14</span><h3>Redstreak oTENTik A2</h3><p>INPC26-59887450B1 · check-in 15:00 · fire ban · ~2h10m from Banff</p>" },
       { n: 6, id: "radium-springs", name: "Radium Hot Springs", lat: 50.6167, lng: -116.0747, kind: "activity", day: "Sep 13–14",
         html: "<span class='tag'>Sep 13 eve or Sep 14 AM</span><h3>Radium Hot Springs</h3><p>Walk-in · ~2 km trail from Redstreak H Loop · ~$20/adult + pass</p>" },
       { n: 7, id: "hi-14", name: "HI Banff (14)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 14",
-        html: "<span class='tag'>Sep 14 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5825418201 · PIN 8573</p>" },
+        html: "<span class='tag'>Sep 14 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5825418201 · PIN 8573 · after Redstreak checkout 11:00</p>" },
       { n: 8, id: "moraine", name: "Moraine Lake", lat: 51.3557, lng: -116.1844, kind: "activity", day: "Sep 15",
-        html: "<span class='tag'>Sep 15 AM (primary)</span><h3>Moraine Lake shuttle</h3><p>Book Sep 13 10:00 EDT · backup Sep 16 AM (book Sep 14 10:00 EDT)</p>" },
+        html: "<span class='tag'>Sep 15 AM primary</span><h3>Moraine Lake shuttle</h3><p>Book Sep 13 10:00 EDT · backup Sep 16 AM (book Sep 14 10:00 EDT)</p>" },
       { n: 9, id: "louise", name: "Lake Louise", lat: 51.4254, lng: -116.1773, kind: "activity", day: "Sep 15",
         html: "<span class='tag'>Sep 15 AM</span><h3>Lake Louise</h3><p>Via Lake Connector from Moraine if time</p>" },
       { n: 10, id: "twojack", name: "Two Jack 52", lat: 51.2108, lng: -115.5608, kind: "lodging", day: "Sep 15",
         html: "<span class='tag'>Sep 15–16</span><h3>Two Jack oTENTik 52</h3><p>INPC26-59538853B1 · check-in 15:00</p>" },
       { n: 11, id: "minnewanka", name: "Lake Minnewanka", lat: 51.2472, lng: -115.5417, kind: "activity", day: "Sep 15–16",
-        html: "<span class='tag'>Sep 15 eve or Sep 16 AM</span><h3>Lake Minnewanka</h3><p>~5 min from Two Jack campground</p>" },
+        html: "<span class='tag'>Sep 15 eve or Sep 16 AM</span><h3>Lake Minnewanka</h3><p>~5 min from Two Jack · sunset or light-day stop</p>" },
       { n: 12, id: "d17", name: "Tunnel Mtn D17", lat: 51.1834, lng: -115.5448, kind: "lodging", day: "Sep 16",
-        html: "<span class='tag'>Sep 16–17</span><h3>Tunnel Mountain V2 D17</h3><p>Light day · check-in 15:00 · Moraine backup AM if needed</p>" },
+        html: "<span class='tag'>Sep 16–17</span><h3>Tunnel Mountain V2 D17</h3><p>Check-in 15:00 · Moraine backup AM if Sep 15 missed · no Icefields today</p>" },
       { n: 13, id: "bow", name: "Bow Lake", lat: 51.7131, lng: -116.4664, kind: "activity", day: "Sep 17",
-        html: "<span class='tag'>Sep 17</span><h3>Bow Lake</h3><p>Icefields Parkway stop</p>" },
+        html: "<span class='tag'>Sep 17 fixed</span><h3>Bow Lake</h3><p>Icefields Parkway · not a Moraine backup day</p>" },
       { n: 14, id: "peyto", name: "Peyto Lake", lat: 51.7283, lng: -116.5078, kind: "activity", day: "Sep 17",
-        html: "<span class='tag'>Sep 17</span><h3>Peyto Lake lookout</h3><p>Icefields Parkway stop</p>" },
+        html: "<span class='tag'>Sep 17 fixed</span><h3>Peyto Lake lookout</h3><p>Icefields Parkway stop</p>" },
       { n: 15, id: "icefield", name: "Columbia Icefield", lat: 52.2203, lng: -117.2242, kind: "activity", day: "Sep 17",
-        html: "<span class='tag'>Sep 17</span><h3>Columbia Icefield viewpoints</h3><p>Full day · skip paid Glacier Adventure unless splurge</p>" },
+        html: "<span class='tag'>Sep 17 fixed</span><h3>Columbia Icefield viewpoints</h3><p>Skip paid Glacier Adventure unless splurge</p>" },
       { n: 16, id: "d5", name: "Tunnel Mtn D5", lat: 51.1826, lng: -115.5485, kind: "lodging", day: "Sep 17",
-        html: "<span class='tag'>Sep 17–18</span><h3>Tunnel Mountain V2 D5</h3><p>INPC26-60395520B1 · check-in 15:00</p>" },
+        html: "<span class='tag'>Sep 17–18</span><h3>Tunnel Mountain V2 D5</h3><p>INPC26-60395520B1 · check-in 15:00 · checkout Sep 18 11:00</p>" },
       { n: 17, id: "banff-town", name: "Banff town", lat: 51.1784, lng: -115.5708, kind: "optional", day: "Sep 18",
-        html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff town · Bow Falls</h3><p>Open afternoon after V2 checkout</p>" },
+        html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff town · Bow Falls</h3><p>One of several afternoon picks after V2 checkout</p>" },
       { n: 18, id: "vermilion", name: "Vermilion Lakes", lat: 51.1842, lng: -115.5986, kind: "optional", day: "Sep 18",
-        html: "<span class='tag opt'>Sep 18 optional</span><h3>Vermilion Lakes</h3><p>Easy sunset walk near Banff</p>" },
+        html: "<span class='tag opt'>Sep 18 optional</span><h3>Vermilion Lakes</h3><p>Easy low-effort sunset walk</p>" },
       { n: 19, id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "optional", day: "Sep 18",
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Canmore · Grassi Lakes</h3><p>Low-effort afternoon option</p>" },
       { n: 20, id: "upper-springs", name: "Banff Upper Hot Springs", lat: 51.1511, lng: -115.5611, kind: "optional", day: "Sep 18",
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff Upper Hot Springs</h3><p>~$20/adult · walk-in</p>" },
       { n: 21, id: "hi-18", name: "HI Banff (18)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 18",
-        html: "<span class='tag'>Sep 18 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5571085239 · PIN 8886</p>" },
+        html: "<span class='tag'>Sep 18 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5571085239 · PIN 8886 · after V2 checkout</p>" },
       { n: 22, id: "yyc-out", name: "YYC return", lat: 51.1215, lng: -114.0076, kind: "transport", day: "Sep 19",
-        html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo 16:00 · flight 00:50 Sep 20</p>" },
+        html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo 16:00 · Flair F8 628 departs 00:50 Sep 20 · YYZ 06:40</p>" },
     ];
 
-    /**
-     * Distinct corridors for opposite-direction days so colors do not stack.
-     * North/west = outbound; south/east = return.
-     */
+    /** Distinct corridors for opposite-direction days so colors do not stack. */
     const via = {
       "hampton|hi-12": [[51.12, -114.45], [51.14, -114.95], [51.16, -115.35], [51.19, -115.50]],
       "hi-18|yyc-out": [[51.14, -115.48], [51.05, -115.30], [51.02, -114.90], [51.05, -114.40]],
@@ -121,8 +118,7 @@
       "redstreak|hi-14": [[50.75, -115.95], [50.95, -115.78], [51.15, -115.62]],
       "d17|bow": [[51.35, -116.25], [51.55, -116.40]],
       "icefield|d5": [[51.90, -117.00], [51.55, -116.28], [51.30, -115.70], [51.20, -115.52]],
-      "d5|canmore": [[51.15, -115.48], [51.12, -115.42]],
-      "canmore|hi-18": [[51.14, -115.42], [51.18, -115.52]],
+      "hi-18|canmore": [[51.16, -115.48], [51.12, -115.40]],
     };
 
     const routeGroups = [
@@ -133,8 +129,15 @@
       { day: "Sep 15", color: "#10b981", weight: 4, legs: [["hi-14", "moraine"], ["moraine", "louise"], ["louise", "twojack"], ["twojack", "minnewanka"]] },
       { day: "Sep 16", color: "#8b5cf6", weight: 4, legs: [["minnewanka", "d17"]] },
       { day: "Sep 17", color: "#ef4444", weight: 4, legs: [["d17", "bow"], ["bow", "peyto"], ["peyto", "icefield"], ["icefield", "d5"]] },
+      /* Main lodging move + optional afternoon picks (alternatives, not one forced loop) */
       { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "8 6",
-        legs: [["d5", "banff-town"], ["banff-town", "vermilion"], ["vermilion", "upper-springs"], ["upper-springs", "canmore"], ["canmore", "hi-18"]] },
+        legs: [
+          ["d5", "hi-18"],
+          ["hi-18", "banff-town"],
+          ["hi-18", "vermilion"],
+          ["hi-18", "upper-springs"],
+          ["hi-18", "canmore"],
+        ] },
       { day: "Sep 19", color: "#475569", weight: 4, legs: [["hi-18", "yyc-out"]] },
     ];
 
