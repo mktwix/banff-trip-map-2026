@@ -12,11 +12,12 @@
     .leaflet-popup-content { font-size: 13px; line-height: 1.45; max-width: 280px; }
     .leaflet-popup-content h3 { margin: 0 0 6px; font-size: 14px; }
     .leaflet-popup-content p { margin: 4px 0; }
+    .leaflet-popup-content hr { border: none; border-top: 1px solid #e5e7eb; margin: 10px 0; }
     .tag { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #e8f0fe; color: #1a56db; margin-bottom: 6px; }
     .tag.opt { background: #f3f4f6; color: #6b7280; }
     .pin {
-      width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff;
-      color: #fff; font-size: 11px; font-weight: 700;
+      min-width: 28px; height: 28px; padding: 0 4px; border-radius: 14px; border: 2px solid #fff;
+      color: #fff; font-size: 10px; font-weight: 700; white-space: nowrap;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 1px 5px rgba(0,0,0,.35);
     }
@@ -40,12 +41,12 @@
   <div id="map"></div>
   <div class="panel">
     <h1>Banff & Calgary Sep 2026</h1>
-    <div>22 stops · colored driving routes by day (highway waypoints, not grid lines).</div>
+    <div>22 stops · routes follow real coords · optional pins have no route lines.</div>
     <div class="legend">
       <div><span class="dot" style="background:#2563eb"></span> Lodging</div>
       <div><span class="dot" style="background:#ca8a04"></span> Activity</div>
       <div><span class="dot" style="background:#64748b"></span> Transport</div>
-      <div><span class="dot" style="background:#9ca3af"></span> Optional</div>
+      <div><span class="dot" style="background:#9ca3af"></span> Optional (pin only)</div>
       <div style="margin-top:8px;font-weight:600">Route by day</div>
       <div><span style="background:#64748b"></span> Sep 11 travel</div>
       <div><span style="background:#3b82f6"></span> Sep 12 west</div>
@@ -54,7 +55,7 @@
       <div><span style="background:#10b981"></span> Sep 15 lakes</div>
       <div><span style="background:#8b5cf6"></span> Sep 16 light day</div>
       <div><span style="background:#ef4444"></span> Sep 17 Icefields</div>
-      <div><span style="background:#9ca3af"></span> Sep 18 optional</div>
+      <div><span style="background:#9ca3af"></span> Sep 18 checkout</div>
       <div><span style="background:#475569"></span> Sep 19 return</div>
     </div>
   </div>
@@ -73,7 +74,7 @@
         html: "<span class='tag'>Sep 13 AM</span><h3>Johnston Canyon</h3><p>HI checkout ~11:00 · start early</p>" },
       { n: 5, id: "redstreak", name: "Redstreak A2", lat: 50.6342, lng: -116.0712, kind: "lodging", day: "Sep 13",
         html: "<span class='tag'>Sep 13–14</span><h3>Redstreak oTENTik A2</h3><p>INPC26-59887450B1 · check-in 15:00</p>" },
-      { n: 6, id: "radium-springs", name: "Radium Hot Springs", lat: 50.6167, lng: -116.0747, kind: "activity", day: "Sep 13–14",
+      { n: 6, id: "radium-springs", name: "Radium Hot Springs", lat: 50.6167, lng: -116.0747, kind: "activity", day: "Sep 13–14", noRoute: true,
         html: "<span class='tag'>Sep 13 eve or Sep 14 AM</span><h3>Radium Hot Springs</h3><p>Walk-in · ~2 km trail from Redstreak H Loop · ~$20/adult + pass</p>" },
       { n: 7, id: "hi-14", name: "HI Banff (14)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 14",
         html: "<span class='tag'>Sep 14 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5825418201 · PIN 8573</p>" },
@@ -95,13 +96,13 @@
         html: "<span class='tag'>Sep 17</span><h3>Columbia Icefield viewpoints</h3><p>Full day · skip paid Glacier Adventure unless splurge</p>" },
       { n: 16, id: "d5", name: "Tunnel Mtn D5", lat: 51.1826, lng: -115.5485, kind: "lodging", day: "Sep 17",
         html: "<span class='tag'>Sep 17–18</span><h3>Tunnel Mountain V2 D5</h3><p>INPC26-60395520B1 · check-in 15:00</p>" },
-      { n: 17, id: "banff-town", name: "Banff town", lat: 51.1784, lng: -115.5708, kind: "optional", day: "Sep 18",
+      { n: 17, id: "banff-town", name: "Banff town", lat: 51.1784, lng: -115.5708, kind: "optional", day: "Sep 18", noRoute: true,
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff town · Bow Falls</h3><p>Open afternoon after V2 checkout</p>" },
-      { n: 18, id: "vermilion", name: "Vermilion Lakes", lat: 51.1842, lng: -115.5986, kind: "optional", day: "Sep 18",
+      { n: 18, id: "vermilion", name: "Vermilion Lakes", lat: 51.1842, lng: -115.5986, kind: "optional", day: "Sep 18", noRoute: true,
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Vermilion Lakes</h3><p>Easy sunset walk near Banff</p>" },
-      { n: 19, id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "optional", day: "Sep 18",
+      { n: 19, id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "optional", day: "Sep 18", noRoute: true,
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Canmore · Grassi Lakes</h3><p>Low-effort afternoon option</p>" },
-      { n: 20, id: "upper-springs", name: "Banff Upper Hot Springs", lat: 51.1511, lng: -115.5611, kind: "optional", day: "Sep 18",
+      { n: 20, id: "upper-springs", name: "Banff Upper Hot Springs", lat: 51.1511, lng: -115.5611, kind: "optional", day: "Sep 18", noRoute: true,
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff Upper Hot Springs</h3><p>~$20/adult · walk-in</p>" },
       { n: 21, id: "hi-18", name: "HI Banff (18)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 18",
         html: "<span class='tag'>Sep 18 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5571085239 · PIN 8886</p>" },
@@ -109,108 +110,71 @@
         html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo 16:00 · flight 00:50 Sep 20</p>" },
     ];
 
-    /** Approximate highway waypoints (Hwy 1 / 93) for long legs — [lat, lng] */
     const via = {
       "hampton|hi-12": [[51.054, -114.38], [51.089, -115.36], [51.162, -115.52]],
       "johnston|redstreak": [[51.18, -115.72], [50.98, -115.88], [50.78, -116.02]],
       "hi-14|moraine": [[51.24, -115.68], [51.32, -116.02]],
       "louise|twojack": [[51.36, -116.08], [51.28, -115.62]],
       "d17|bow": [[51.42, -116.18], [51.58, -116.32]],
+      "icefield|d5": [[51.58, -116.32], [51.42, -116.18], [51.28, -115.62], [51.19, -115.55]],
       "hi-18|yyc-out": [[51.162, -115.52], [51.089, -115.36], [51.054, -114.38]],
     };
 
     const routeGroups = [
-      { day: "Sep 11", color: "#64748b", weight: 4, dash: null, legs: [["yyc-in", "hampton"]] },
-      { day: "Sep 12", color: "#3b82f6", weight: 4, dash: null, legs: [["hampton", "hi-12"]] },
-      { day: "Sep 13", color: "#f59e0b", weight: 4, dash: null, legs: [["hi-12", "johnston"], ["johnston", "redstreak"], ["redstreak", "radium-springs"]] },
-      { day: "Sep 14", color: "#06b6d4", weight: 4, dash: null, legs: [["redstreak", "hi-14"]] },
-      { day: "Sep 15", color: "#10b981", weight: 4, dash: null, legs: [["hi-14", "moraine"], ["moraine", "louise"], ["louise", "twojack"], ["twojack", "minnewanka"]] },
-      { day: "Sep 16", color: "#8b5cf6", weight: 4, dash: null, legs: [["minnewanka", "d17"]] },
-      { day: "Sep 17", color: "#ef4444", weight: 4, dash: null, legs: [["d17", "bow"], ["bow", "peyto"], ["peyto", "icefield"], ["icefield", "d5"]] },
-      { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "8 6", legs: [["d5", "banff-town"], ["d5", "vermilion"], ["d5", "canmore"], ["d5", "upper-springs"], ["banff-town", "hi-18"]] },
-      { day: "Sep 19", color: "#475569", weight: 4, dash: null, legs: [["hi-18", "yyc-out"]] },
+      { day: "Sep 11", color: "#64748b", weight: 4, legs: [["yyc-in", "hampton"]] },
+      { day: "Sep 12", color: "#3b82f6", weight: 4, legs: [["hampton", "hi-12"]] },
+      { day: "Sep 13", color: "#f59e0b", weight: 4, legs: [["hi-12", "johnston"], ["johnston", "redstreak"]] },
+      { day: "Sep 14", color: "#06b6d4", weight: 4, legs: [["redstreak", "hi-14"]] },
+      { day: "Sep 15", color: "#10b981", weight: 4, legs: [["hi-14", "moraine"], ["moraine", "louise"], ["louise", "twojack"], ["twojack", "minnewanka"]] },
+      { day: "Sep 16", color: "#8b5cf6", weight: 4, legs: [["minnewanka", "d17"]] },
+      { day: "Sep 17", color: "#ef4444", weight: 4, legs: [["d17", "bow"], ["bow", "peyto"], ["peyto", "icefield"], ["icefield", "d5"]] },
+      { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "6 5", legs: [["d5", "hi-18"]] },
+      { day: "Sep 19", color: "#475569", weight: 4, legs: [["hi-18", "yyc-out"]] },
     ];
 
-    function cellKey(lat, lng) { return lat.toFixed(4) + "," + lng.toFixed(4); }
-
-    function spreadStops(list) {
-      const groups = new Map();
-      list.forEach((s) => {
-        const k = cellKey(s.lat, s.lng);
-        if (!groups.has(k)) groups.set(k, []);
-        groups.get(k).push(s);
-      });
-      return list.map((s) => {
-        const group = groups.get(cellKey(s.lat, s.lng));
-        const idx = group.indexOf(s);
-        const total = group.length;
-        if (total <= 1) return { ...s, dlat: s.lat, dlng: s.lng };
-        const angle = (2 * Math.PI * idx) / total - Math.PI / 2;
-        const r = 0.012 + (total > 3 ? 0.006 : 0);
-        const cos = Math.cos(s.lat * Math.PI / 180);
-        return { ...s, dlat: s.lat + r * Math.cos(angle), dlng: s.lng + (r * Math.sin(angle)) / cos };
-      });
-    }
+    const byId = (id) => stops.find((s) => s.id === id);
+    const pt = (id) => { const s = byId(id); return [s.lat, s.lng]; };
 
     function legKey(fromId, toId) { return `${fromId}|${toId}`; }
 
-    function driveLeg(fromId, toId, byId) {
-      const a = byId(fromId);
-      const b = byId(toId);
-      const start = [a.dlat, a.dlng];
-      const end = [b.dlat, b.dlng];
+    function driveLeg(fromId, toId) {
+      const start = pt(fromId);
+      const end = pt(toId);
       const key = legKey(fromId, toId);
       const revKey = legKey(toId, fromId);
       const mids = via[key] || (via[revKey] ? [...via[revKey]].reverse() : []);
       return [start, ...mids, end];
     }
 
-    function offsetPath(path, lane) {
-      if (!lane) return path;
-      const shift = Math.min(lane * 0.00035, 0.002);
-      return path.map((point, index) => {
-        // Keep route endpoints attached to their pins. Only separate the
-        // middle of shared legs, otherwise the colored line appears airborne.
-        if (index === 0 || index === path.length - 1) return point;
-        const prev = path[Math.max(0, index - 1)];
-        const next = path[Math.min(path.length - 1, index + 1)];
-        const dLat = next[0] - prev[0];
-        const dLng = next[1] - prev[1];
-        const length = Math.hypot(dLat, dLng) || 1;
-        return [point[0] - (dLng / length) * shift, point[1] + (dLat / length) * shift];
+    function cellKey(lat, lng) { return `${lat.toFixed(4)},${lng.toFixed(4)}`; }
+
+    function markerGroups(list) {
+      const groups = new Map();
+      list.forEach((s) => {
+        const k = cellKey(s.lat, s.lng);
+        if (!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(s);
       });
+      return [...groups.values()].map((items) => ({
+        lat: items[0].lat,
+        lng: items[0].lng,
+        label: items.map((s) => s.n).join("·"),
+        names: items.map((s) => `${s.n}. ${s.name}`).join(" · "),
+        html: items.map((s) => s.html).join("<hr>"),
+        kind: items.some((s) => s.kind === "lodging") ? "lodging"
+          : items.some((s) => s.kind === "activity") ? "activity"
+          : items.some((s) => s.kind === "transport") ? "transport" : "optional",
+      }));
     }
 
-    function drawLeg(map, fromId, toId, byId, style, lane) {
-      const path = offsetPath(driveLeg(fromId, toId, byId), lane);
-      L.polyline(path, {
-        color: "#ffffff",
-        weight: style.weight + 4,
-        opacity: 0.9,
-        lineCap: "round",
-        lineJoin: "round",
-      }).addTo(map);
-      L.polyline(path, {
-        color: style.color,
-        weight: style.weight,
-        opacity: 0.85,
-        dashArray: style.dash || null,
-        lineCap: "round",
-        lineJoin: "round",
-      }).addTo(map);
-    }
-
-    function pinIcon(n, color) {
+    function pinIcon(label, color) {
       return L.divIcon({
         className: "",
-        html: `<div class="pin" style="background:${color}">${n}</div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
+        html: `<div class="pin" style="background:${color}">${label}</div>`,
+        iconSize: [36, 28],
+        iconAnchor: [18, 14],
       });
     }
-
-    const placed = spreadStops(stops);
-    const byId = (id) => placed.find((s) => s.id === id);
 
     const map = L.map("map").setView([51.45, -115.72], 8);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -218,20 +182,36 @@
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    routeGroups.forEach((group, groupIndex) => {
-      group.legs.forEach(([fromId, toId], legIndex) => {
-        drawLeg(map, fromId, toId, byId, group, groupIndex * 0.8 + (legIndex % 2) * 0.2);
+    routeGroups.forEach((group) => {
+      group.legs.forEach(([fromId, toId]) => {
+        L.polyline(driveLeg(fromId, toId), {
+          color: group.color,
+          weight: group.weight,
+          opacity: 0.9,
+          dashArray: group.dash || null,
+          lineCap: "round",
+          lineJoin: "round",
+        }).addTo(map);
       });
     });
 
     const bounds = [];
-    placed.forEach((s) => {
-      bounds.push([s.dlat, s.dlng]);
-      L.marker([s.dlat, s.dlng], { icon: pinIcon(s.n, colors[s.kind]), zIndexOffset: 1000 - s.n })
+    markerGroups(stops).forEach((g) => {
+      bounds.push([g.lat, g.lng]);
+      L.marker([g.lat, g.lng], { icon: pinIcon(g.label, colors[g.kind]) })
+        .bindPopup(g.html)
+        .bindTooltip(g.names, { direction: "top", offset: [0, -12] })
+        .addTo(map);
+    });
+
+    stops.filter((s) => s.noRoute).forEach((s) => {
+      bounds.push([s.lat, s.lng]);
+      L.marker([s.lat, s.lng], { icon: pinIcon(String(s.n), colors[s.kind]) })
         .bindPopup(s.html)
         .bindTooltip(`${s.n}. ${s.name} (${s.day})`, { direction: "top", offset: [0, -12] })
         .addTo(map);
     });
+
     map.fitBounds(L.latLngBounds(bounds), { padding: [48, 48] });
   </script>
 </body>
