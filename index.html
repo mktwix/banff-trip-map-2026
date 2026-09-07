@@ -132,11 +132,13 @@
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    const routeLatLngs = routeOrder.map((id) => {
-      const s = byId(id);
-      return [s.lat, s.lng];
-    });
-    L.polyline(routeLatLngs, { color: "#2563eb", weight: 4, opacity: 0.75 }).addTo(map);
+    L.polyline(
+      routeOrder.map((id) => {
+        const s = byId(id);
+        return [s.dlat, s.dlng];
+      }),
+      { color: "#2563eb", weight: 4, opacity: 0.75 }
+    ).addTo(map);
 
     const bounds = [];
     placed.forEach((s) => {
