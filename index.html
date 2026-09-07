@@ -165,8 +165,29 @@
       return [start, ...mids, end];
     }
 
-    function drawLeg(map, fromId, toId, byId, style) {
-      L.polyline(driveLeg(fromId, toId, byId), {
+    function offsetPath(path, lane) {
+      if (!lane) return path;
+      const shift = lane * 0.0018;
+      return path.map((point, index) => {
+        const prev = path[Math.max(0, index - 1)];
+        const next = path[Math.min(path.length - 1, index + 1)];
+        const dLat = next[0] - prev[0];
+        const dLng = next[1] - prev[1];
+        const length = Math.hypot(dLat, dLng) || 1;
+        return [point[0] - (dLng / length) * shift, point[1] + (dLat / length) * shift];
+      });
+    }
+
+    function drawLeg(map, fromId, toId, byId, style, lane) {
+      const path = offsetPath(driveLeg(fromId, toId, byId), lane);
+      L.polyline(path, {
+        color: "#ffffff",
+        weight: style.weight + 4,
+        opacity: 0.9,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
+      L.polyline(path, {
         color: style.color,
         weight: style.weight,
         opacity: 0.85,
@@ -194,9 +215,9 @@
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    routeGroups.forEach((group) => {
-      group.legs.forEach(([fromId, toId]) => {
-        drawLeg(map, fromId, toId, byId, group);
+    routeGroups.forEach((group, groupIndex) => {
+      group.legs.forEach(([fromId, toId], legIndex) => {
+        drawLeg(map, fromId, toId, byId, group, groupIndex * 0.8 + (legIndex % 2) * 0.2);
       });
     });
 
