@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Banff Trip Map — Sep 11–20, 2026</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    .leaflet-popup-content { font-size: 13px; line-height: 1.45; max-width: 280px; }
+    .leaflet-popup-content h3 { margin: 0 0 6px; font-size: 14px; }
+    .leaflet-popup-content p { margin: 4px 0; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #e8f0fe; color: #1a56db; margin-bottom: 6px; }
+    .panel {
+      position: absolute; top: 12px; right: 12px; z-index: 1000;
+      background: #fff; border-radius: 8px; padding: 12px 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.15); max-width: 260px; font-size: 12px;
+    }
+    .panel h1 { margin: 0 0 8px; font-size: 15px; }
+    .panel ul { margin: 8px 0 0; padding-left: 18px; }
+    .legend { margin-top: 8px; }
+    .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="panel">
+    <h1>Banff & Calgary Sep 2026</h1>
+    <div>Click pins for lodging, schedule, refs.</div>
+    <div class="legend">
+      <div><span style="background:#2563eb"></span> Lodging</div>
+      <div><span style="background:#ca8a04"></span> Activity</div>
+      <div><span style="background:#64748b"></span> Transport</div>
+    </div>
+    <ul>
+      <li>Moraine shuttle: Sep 13 10:00 EDT</li>
+      <li>Buy Discovery Pass before Sep 11</li>
+    </ul>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const stops = [
+      { id: "yyc", name: "Calgary YYC", lat: 51.1215, lng: -114.0076, kind: "transport", day: "Sep 11",
+        html: "<span class='tag'>Sep 11</span><h3>Calgary YYC</h3><p>18:15 land · 19:00 Turo</p><p><b>Stay:</b> Hampton Inn Airport North</p>" },
+      { id: "hi12", name: "HI Banff", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 12",
+        html: "<span class='tag'>Sep 12</span><h3>HI Banff Alpine Centre</h3><p>Ref 5164644914 · PIN 9709</p><p>Minnewanka · Two Jack · Banff town</p>" },
+      { id: "johnston", name: "Johnston Canyon", lat: 51.2453, lng: -115.84, kind: "activity", day: "Sep 13",
+        html: "<span class='tag'>Sep 13 AM</span><h3>Johnston Canyon</h3><p>HI checkout ~11:00 · then drive to Radium</p>" },
+      { id: "redstreak", name: "Redstreak A2", lat: 50.6342, lng: -116.0712, kind: "lodging", day: "Sep 13",
+        html: "<span class='tag'>Sep 13–14</span><h3>Redstreak oTENTik A2</h3><p>INPC26-59887450B1 · check-in 15:00 · fire ban</p>" },
+      { id: "yoho", name: "Emerald Lake", lat: 51.4432, lng: -116.5379, kind: "activity", day: "Sep 14",
+        html: "<span class='tag'>Sep 14</span><h3>Yoho NP</h3><p>Checkout Redstreak 11:00 · Emerald Lake · Takakkaw Falls</p><p><b>Stay:</b> HI Banff (5825418201)</p>" },
+      { id: "moraine", name: "Moraine Lake", lat: 51.3557, lng: -116.1844, kind: "activity", day: "Sep 15",
+        html: "<span class='tag'>Sep 15 AM</span><h3>Moraine Lake shuttle</h3><p>Book Sep 13 10:00 EDT · backup Sep 17</p>" },
+      { id: "twojack", name: "Two Jack 52", lat: 51.2108, lng: -115.5608, kind: "lodging", day: "Sep 15",
+        html: "<span class='tag'>Sep 15–16</span><h3>Two Jack oTENTik 52</h3><p>INPC26-59538853B1 · check-in 15:00</p>" },
+      { id: "d17", name: "Tunnel Mtn D17", lat: 51.183, lng: -115.545, kind: "lodging", day: "Sep 16",
+        html: "<span class='tag'>Sep 16 light day</span><h3>Tunnel Mountain V2 D17</h3><p>Checkout Two Jack 11:00 · check-in 15:00 · no Icefields today</p>" },
+      { id: "bow", name: "Bow / Peyto", lat: 51.715, lng: -116.49, kind: "activity", day: "Sep 17",
+        html: "<span class='tag'>Sep 17</span><h3>Icefields Parkway</h3><p>Bow Lake · Peyto Lake · Columbia viewpoints</p>" },
+      { id: "icefield", name: "Columbia Icefield", lat: 52.2203, lng: -117.2242, kind: "activity", day: "Sep 17",
+        html: "<span class='tag'>Sep 17</span><h3>Columbia Icefield</h3><p>Viewpoints only — skip paid Glacier tour</p>" },
+      { id: "d5", name: "Tunnel Mtn D5", lat: 51.183, lng: -115.548, kind: "lodging", day: "Sep 17",
+        html: "<span class='tag'>Sep 17–18</span><h3>Tunnel Mountain V2 D5</h3><p>INPC26-60395520B1</p>" },
+      { id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "activity", day: "Sep 18",
+        html: "<span class='tag'>Sep 18</span><h3>Canmore</h3><p>Grassi Lakes · HI Banff 5571085239</p>" },
+      { id: "yyc-out", name: "YYC return", lat: 51.1215, lng: -114.0076, kind: "transport", day: "Sep 19",
+        html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo 16:00 · flight 00:50 Sep 20</p>" },
+    ];
+
+    const routeOrder = ["yyc","hi12","johnston","redstreak","yoho","hi12","moraine","twojack","d17","bow","icefield","d5","canmore","hi12","yyc-out"];
+    const colors = { lodging: "#2563eb", activity: "#ca8a04", transport: "#64748b" };
+
+    const map = L.map("map").setView([51.45, -115.72], 8);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    const routeLatLngs = routeOrder.map((id) => {
+      const s = stops.find((x) => x.id === id);
+      return [s.lat, s.lng];
+    });
+    L.polyline(routeLatLngs, { color: "#2563eb", weight: 4, opacity: 0.85 }).addTo(map);
+    map.fitBounds(L.latLngBounds(routeLatLngs), { padding: [40, 40] });
+
+    stops.forEach((s) => {
+      L.circleMarker([s.lat, s.lng], {
+        radius: 8,
+        color: "#fff",
+        weight: 2,
+        fillColor: colors[s.kind],
+        fillOpacity: 1,
+      })
+        .bindPopup(s.html)
+        .bindTooltip(s.name, { direction: "top", offset: [0, -8] })
+        .addTo(map);
+    });
+  </script>
+</body>
+</html>
