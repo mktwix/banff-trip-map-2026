@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Banff Trip Map — Sep 11–20, 2026</title>
+  <title>Banff Trip — Map & Calendar · Sep 11–20, 2026</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, sans-serif; }
+    body { margin: 0; font-family: system-ui, sans-serif; color: #111827; }
     #map { height: 100vh; width: 100%; }
     .leaflet-popup-content { font-size: 13px; line-height: 1.45; max-width: 280px; }
     .leaflet-popup-content h3 { margin: 0 0 6px; font-size: 14px; }
@@ -32,12 +32,48 @@
     .legend > div { margin: 3px 0; }
     .legend span { display: inline-block; width: 18px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
     .legend .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .view-toggle {
+      position: absolute; top: 12px; left: 12px; z-index: 1100;
+      display: flex; gap: 0; background: #fff; border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.15); overflow: hidden;
+    }
+    .view-toggle button {
+      border: none; background: #fff; padding: 10px 16px; font: inherit; font-size: 13px;
+      font-weight: 600; cursor: pointer; color: #6b7280;
+    }
+    .view-toggle button.active { background: #111827; color: #fff; }
+    #calendar {
+      display: none; height: 100vh; overflow-y: auto;
+      padding: 56px 20px 40px; max-width: 920px; margin: 0 auto; line-height: 1.5; font-size: 14px;
+    }
+    body.show-calendar #map,
+    body.show-calendar .panel { display: none; }
+    body.show-calendar #calendar { display: block; }
+    #calendar h1 { font-size: 1.45rem; margin: 0 0 4px; }
+    #calendar .meta { color: #6b7280; margin-bottom: 1.25rem; }
+    #calendar h2 { font-size: 1.1rem; margin: 1.75rem 0 0.6rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+    #calendar h3 { font-size: 1rem; margin: 1.2rem 0 0.4rem; }
+    #calendar table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 0.5rem 0 1rem; }
+    #calendar th, #calendar td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; vertical-align: top; }
+    #calendar th { background: #f9fafb; }
+    #calendar ul { padding-left: 1.2rem; margin: 0.35rem 0 0.8rem; }
+    #calendar li { margin: 0.25rem 0; }
+    #calendar a { color: #1a56db; }
+    #calendar hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.5rem 0; }
+    #calendar .booked { color: #047857; font-weight: 600; }
     @media (max-width: 520px) {
-      .panel { left: 12px; right: 12px; max-width: none; top: auto; bottom: 12px; max-height: 42vh; }
+      .panel { left: 12px; right: 12px; max-width: none; top: auto; bottom: 12px; max-height: 36vh; }
+      .view-toggle { left: 50%; transform: translateX(-50%); }
+      #calendar { padding: 56px 14px 32px; }
     }
   </style>
 </head>
 <body>
+  <div class="view-toggle">
+    <button type="button" id="btn-map" class="active">Map</button>
+    <button type="button" id="btn-cal">Calendar</button>
+  </div>
+
   <div id="map"></div>
   <div class="panel">
     <h1>Banff & Calgary Sep 2026</h1>
@@ -59,8 +95,216 @@
       <div><span style="background:#475569"></span> Sep 19 return</div>
     </div>
   </div>
+
+  <article id="calendar">
+    <h1>Banff Trip Calendar — Sep 11–20, 2026</h1>
+    <p class="meta">2 adults: Hossein + Shokoufeh · Last updated: 2026-09-07</p>
+
+    <h2>Night calendar</h2>
+    <table>
+      <thead>
+        <tr><th>Night (check-in)</th><th>Lodging</th><th>Status</th><th>Ref / notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Fri Sep 11</strong></td><td>Hampton Inn Calgary Airport North</td><td class="booked">Booked</td><td>Breakfast incl.</td></tr>
+        <tr><td><strong>Sat Sep 12</strong></td><td>HI Banff Alpine Centre (2× 4-bed mixed dorm)</td><td class="booked">Booked</td><td>Booking.com <strong>5164644914</strong> · PIN 9709 · CAD 271.73 · pay at property</td></tr>
+        <tr><td><strong>Sun Sep 13</strong></td><td>Redstreak oTENTik A2</td><td class="booked">Booked</td><td>INPC26-59887450B1 · fire ban</td></tr>
+        <tr><td><strong>Mon Sep 14</strong></td><td>HI Banff Alpine Centre (2× 4-bed mixed dorm)</td><td class="booked">Booked</td><td>Booking.com <strong>5825418201</strong> · PIN 8573 · CAD 271.73 · pay at property</td></tr>
+        <tr><td><strong>Tue Sep 15</strong></td><td>Two Jack Lakeside oTENTik 52</td><td class="booked">Booked</td><td>INPC26-59538853B1</td></tr>
+        <tr><td><strong>Wed Sep 16</strong></td><td>Tunnel Mountain V2 oTENTik D17</td><td class="booked">Booked</td><td>Auto-paid 13:30 · INPC ref in confirmation email</td></tr>
+        <tr><td><strong>Thu Sep 17</strong></td><td>Tunnel Mountain V2 oTENTik D5</td><td class="booked">Booked</td><td>INPC26-60395520B1</td></tr>
+        <tr><td><strong>Fri Sep 18</strong></td><td>HI Banff Alpine Centre (2× 4-bed mixed dorm)</td><td class="booked">Booked</td><td>Booking.com <strong>5571085239</strong> · PIN 8886 · CAD 271.73 · pay at property</td></tr>
+        <tr><td><strong>Sat Sep 19</strong></td><td><em>(travel)</em></td><td>—</td><td>Turo return 4pm · late flight</td></tr>
+        <tr><td><strong>Sun Sep 20</strong></td><td>Home</td><td>—</td><td>Land YYZ 06:40</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Gaps:</strong> none for lodging. Sep <strong>12 / 14 / 18</strong> HI Banff booked (2× mixed dorm · pay at property · cancel if you keep a sniper oTENTik on those nights).</p>
+
+    <h2>Hostel options (Sep 12, 14, 18 · 2 adults)</h2>
+    <p>YWCA Banff hotel is <strong>closed</strong> (since Mar 2025). <strong>Decision:</strong> HI Banff Alpine Centre, 2× mixed dorm beds via Booking.com.</p>
+    <ol>
+      <li><a href="https://hihostels.ca/en/destinations/hi-banff">HI Banff Alpine Centre</a> (801 Hidden Ridge Way)
+        <ul>
+          <li>Booked path: Booking.com · 2× Bed in 4-Bed Mixed Dorm · ~CAD 240 + tax/night · pay at property</li>
+          <li>Direct: <a href="https://book.hihostels.ca/booking-steps.html?hostelcode=hibanff">hihostels.ca booking</a></li>
+        </ul>
+      </li>
+    </ol>
+
+    <hr />
+
+    <h2>Overview</h2>
+    <table>
+      <thead><tr><th>Item</th><th>Dates</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Flair F8 621 / 628 (YYZ ↔ YYC)</td><td>Sep 11 → Sep 20</td><td class="booked">Booked (+ 23kg bag Hossein)</td></tr>
+        <tr><td>Turo Honda Civic @ YYC</td><td>Sep 11 7pm → Sep 19 4pm</td><td class="booked">Booked</td></tr>
+        <tr><td>Hampton Inn Calgary Airport North</td><td>Sep 11 night</td><td class="booked">Booked</td></tr>
+        <tr><td>Redstreak oTENTik site A2</td><td>Sep 13–14</td><td class="booked">Booked</td></tr>
+        <tr><td>Two Jack Lakeside oTENTik site 52</td><td>Sep 15–16</td><td class="booked">Booked</td></tr>
+        <tr><td>Tunnel Mountain V2 oTENTik D17</td><td>Sep 16–17</td><td class="booked">Booked (sniper auto-pay)</td></tr>
+        <tr><td>Tunnel Mountain V2 oTENTik D5</td><td>Sep 17–18</td><td class="booked">Booked (INPC26-60395520B1)</td></tr>
+        <tr><td>HI Banff Alpine Centre (2× dorm)</td><td>Sep 12, 14, 18</td><td class="booked">Booked (Booking.com)</td></tr>
+        <tr><td>Moraine Lake shuttle</td><td><strong>Sep 15</strong> primary · <strong>Sep 16 AM</strong> backup</td><td>Alert-only sniper · book yourself · Last Minute <strong>Sep 13 10:00 EDT</strong> (Sep 15) · <strong>Sep 14 10:00 EDT</strong> (Sep 16)</td></tr>
+        <tr><td>Radium Hot Springs</td><td>Sep 13 eve or Sep 14 am</td><td>No booking (walk-in only · ~2 km trail from Redstreak H Loop)</td></tr>
+        <tr><td>Parks Canada Discovery Pass</td><td>Sep 11–19</td><td><strong>Buy before travel</strong> (Canada Strong free window ended Sep 7 — trip starts after it)</td></tr>
+      </tbody>
+    </table>
+
+    <hr />
+
+    <h2>Day by day</h2>
+
+    <h3>Fri Sep 11 — Travel + Calgary</h3>
+    <ul>
+      <li><strong>15:55</strong> Depart YYZ (Flair F8 621) · checked bag with camping gear</li>
+      <li><strong>18:15</strong> Land YYC</li>
+      <li><strong>19:00</strong> Pick up Turo Civic (YYC)</li>
+      <li>Check in <strong>Hampton Inn by Hilton Calgary Airport North</strong>
+        <ul><li>King · 2 guests · breakfast included · ~CAD $189.89 (non-refundable)</li></ul>
+      </li>
+    </ul>
+
+    <h3>Sat Sep 12 — Drive west · HI Banff booked</h3>
+    <ul>
+      <li>Breakfast at Hampton · checkout by 12:00</li>
+      <li>Drive to Banff · check in <strong>HI Banff Alpine Centre</strong> (2× mixed dorm)</li>
+      <li>Ref <strong>5164644914</strong> · PIN <strong>9709</strong> · CAD 271.73 · pay at property</li>
+      <li>Next night (Sep 13): Redstreak A2</li>
+    </ul>
+
+    <h3>Sun Sep 13 — BOOKED Redstreak (check-in today)</h3>
+    <ul>
+      <li><strong>Morning:</strong> Johnston Canyon hike (from HI Banff · checkout ~11:00 · start early)</li>
+      <li><strong>Afternoon:</strong> Drive to Radium · <strong>Kootenay Redstreak oTENTik, site A2</strong> check-in 3:00 PM
+        <ul><li>Banff → Radium via Hwy 93 is ~2h10m (137 km) non-stop — real buffer after an 11am checkout</li></ul>
+      </li>
+      <li>Ref <strong>INPC26-59887450B1</strong> · CAD $159.00</li>
+      <li>Fire ban (no campfires) · oTENTik has no heat vs Banff units</li>
+      <li><strong>Radium Hot Springs:</strong> walk-in only (~$20/adult + park pass), ~2 km one-way trail from Redstreak H Loop (~1.5 hr return). Best: evening Sep 13 or morning Sep 14. No advance tickets.</li>
+    </ul>
+
+    <h3>Mon Sep 14 — HI Banff booked</h3>
+    <ul>
+      <li>Checkout Redstreak 11:00 · drive to Banff (~2 hr)</li>
+      <li>Optional: Radium Hot Springs walk before checkout if not done Sep 13 evening</li>
+      <li>Check in <strong>HI Banff Alpine Centre</strong> (2× mixed dorm)</li>
+      <li>Ref <strong>5825418201</strong> · PIN <strong>8573</strong> · CAD 271.73 · pay at property</li>
+      <li>Next night (Sep 15): Two Jack 52</li>
+    </ul>
+
+    <h3>Tue Sep 15 — BOOKED Two Jack (check-in today)</h3>
+    <ul>
+      <li><strong>Morning:</strong> Moraine Lake shuttle (7–8 a.m. slot ideal) · Lake Louise via connector if time</li>
+      <li><strong>Afternoon:</strong> Check in <strong>Two Jack Lakeside oTENTik, site 52</strong> (3:00 PM)</li>
+      <li>Ref <strong>INPC26-59538853B1</strong></li>
+      <li><strong>Lake Minnewanka</strong> is ~5 min drive from the campground — easy add for a sunset stop this evening</li>
+      <li>Book Sep 15 shuttle at <strong>Sep 13 10:00 a.m. EDT</strong> Last Minute release · if sold out, book Sep 16 at <strong>Sep 14 10:00 a.m. EDT</strong> (see Sep 16)</li>
+    </ul>
+
+    <h3>Wed Sep 16 — BOOKED Tunnel Mountain V2 D17 (check-in today)</h3>
+    <ul>
+      <li>Checkout <strong>Two Jack site 52</strong> by 11:00 AM</li>
+      <li><strong>If Sep 15 Moraine shuttle didn't come through:</strong> Sep 16 morning slot — leave Two Jack ~5:30–6:00, bags packed night before, back for 11:00 checkout (tight)</li>
+      <li>Otherwise, <strong>light day</strong>: groceries · pack · optional short Lake Minnewanka or Bow Lake/Peyto Lake lookout stop if quick</li>
+      <li>Check in <strong>Tunnel Mountain Village 2 oTENTik, site D17</strong> (3:00 PM)</li>
+      <li>Sniper auto-paid <strong>13:30</strong> · confirmation email has INPC ref — <strong>still need to file this ref below</strong></li>
+      <li><strong>No Columbia Icefield today</strong> (full day trip; stays on Sep 17)</li>
+    </ul>
+
+    <h3>Thu Sep 17 — BOOKED Tunnel Mountain V2 D5 (check-in today)</h3>
+    <ul>
+      <li><strong>Full day, fixed:</strong> Icefields Parkway · Bow Lake · Peyto Lake · Columbia Icefield area (viewpoints; skip paid Glacier Adventure unless you want the splurge)</li>
+      <li>Moraine is <strong>not</strong> a backup this day — Icefields is weather-dependent and can't be rebooked last-minute</li>
+      <li>Same campground: <strong>Tunnel Mountain Village 2 oTENTik, site D5</strong> check-in 3:00 PM · checkout Sep 18 11:00 AM</li>
+      <li>Ref <strong>INPC26-60395520B1</strong></li>
+    </ul>
+
+    <h3>Fri Sep 18 — HI Banff booked</h3>
+    <ul>
+      <li>After V2 checkout: <strong>HI Banff Alpine Centre</strong> (2× mixed dorm)</li>
+      <li>Ref <strong>5571085239</strong> · PIN <strong>8886</strong> · CAD 271.73 · pay at property</li>
+      <li>Open afternoon — no fixed plan. Easy low-effort options: Banff town / Bow Falls / Vermilion Lakes, Canmore, or Banff Upper Hot Springs (~$20/adult)</li>
+    </ul>
+
+    <h3>Activity notes</h3>
+    <ul>
+      <li><strong>Moraine Lake:</strong> Sep 15 primary · <strong>Sep 16 AM</strong> backup (not Sep 17) · Last Minute <strong>Sep 13 10:00 a.m. EDT</strong> (Sep 15) · <strong>Sep 14 10:00 a.m. EDT</strong> (Sep 16)</li>
+      <li><strong>Icefields Parkway / Columbia Icefield:</strong> Sep 17 only, fixed (from Tunnel Mountain base)</li>
+      <li><strong>Lake Minnewanka:</strong> ~5 min from Two Jack — good fit Sep 15 evening or Sep 16 morning</li>
+      <li>Optional: Banff Upper Hot Springs (~$20/adult)</li>
+    </ul>
+
+    <h3>Sat Sep 19 — Return car</h3>
+    <ul>
+      <li>Banff → YYC · <strong>16:00</strong> Turo return</li>
+    </ul>
+
+    <h3>Sun Sep 20 — Fly home</h3>
+    <ul>
+      <li><strong>00:50</strong> Depart YYC (Flair F8 628) · <strong>06:40</strong> land YYZ</li>
+    </ul>
+
+    <hr />
+
+    <h2>Bookings reference</h2>
+    <table>
+      <thead><tr><th>What</th><th>Ref / link</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Flair</td><td><strong>766GMT</strong></td><td>+ 23kg bag both legs (~$198)</td></tr>
+        <tr><td>Turo</td><td><a href="https://turo.com/ca/en/reservation/60850590">60850590</a></td><td>Civic 2020 · YYC only</td></tr>
+        <tr><td>Hampton Inn</td><td>Booking.com</td><td>Sep 11–12 · breakfast incl.</td></tr>
+        <tr><td>HI Banff (Sep 12)</td><td><strong>5164644914</strong> · PIN 9709</td><td>2× mixed dorm · CAD 271.73 · pay at property</td></tr>
+        <tr><td>Redstreak oTENTik</td><td><strong>INPC26-59887450B1</strong></td><td>Site A2 · Sep 13–14</td></tr>
+        <tr><td>HI Banff (Sep 14)</td><td><strong>5825418201</strong> · PIN 8573</td><td>2× mixed dorm · CAD 271.73 · pay at property</td></tr>
+        <tr><td>Two Jack oTENTik</td><td><strong>INPC26-59538853B1</strong></td><td>Site 52 · Sep 15–16</td></tr>
+        <tr><td>Tunnel Mountain V2 (D17)</td><td><em>(confirmation email — still need to file)</em></td><td>Site D17 · Sep 16–17</td></tr>
+        <tr><td>Tunnel Mountain V2 (D5)</td><td><strong>INPC26-60395520B1</strong></td><td>Site D5 · Sep 17–18</td></tr>
+        <tr><td>HI Banff (Sep 18)</td><td><strong>5571085239</strong> · PIN 8886</td><td>2× mixed dorm · CAD 271.73 · pay at property</td></tr>
+      </tbody>
+    </table>
+
+    <hr />
+
+    <h2>Still need</h2>
+    <ol>
+      <li><strong>Moraine Lake shuttle Sep 15</strong> (backup <strong>Sep 16 AM</strong>) — <strong>Sep 13 10:00 EDT</strong> (Sep 15) · <strong>Sep 14 10:00 EDT</strong> (Sep 16 if needed)</li>
+      <li><strong>Parks Canada Discovery Pass</strong> — buy before Sep 11 (Canada Strong free window ended Sep 7, 2026 — trip is entirely after it)</li>
+      <li><s>Lodging Sep 16</s> — <strong>V2 D17 booked</strong></li>
+      <li><s>Radium Hot Springs</s> — walk-in Sep 13–14, ~2 km trail from Redstreak</li>
+      <li>File <strong>D17 INPC ref</strong> from confirmation email</li>
+    </ol>
+
+    <h2>Sniper scope</h2>
+    <ul>
+      <li><strong>Banff sniper:</strong> <strong>STOPPED</strong> — lodging fully booked (Sep 11–18)</li>
+      <li><strong>Redstreak:</strong> booked Sep 13 · hard-blocked</li>
+      <li><strong>Hard-blocked:</strong> Sep 11 hotel · Sep 13 Redstreak · Sep 15 Two Jack · Sep 16 V2 D17 · Sep 17 V2 D5</li>
+      <li><strong>Soft (allow hold):</strong> Sep 12/14/18 HI Banff (<code>allowOtentikHold</code>)</li>
+    </ul>
+
+    <h2>Pack / notes</h2>
+    <ul>
+      <li>Sleeping bags + camping gear in Flair checked bag</li>
+      <li>Redstreak: no cooking/food inside oTENTik; fire ban</li>
+      <li>Park entry: <strong>buy Discovery Pass before Sep 11</strong> (Canada Strong free window ended Sep 7, 2026)</li>
+    </ul>
+  </article>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    document.getElementById("btn-map").addEventListener("click", () => {
+      document.body.classList.remove("show-calendar");
+      document.getElementById("btn-map").classList.add("active");
+      document.getElementById("btn-cal").classList.remove("active");
+      setTimeout(() => map.invalidateSize(), 50);
+    });
+    document.getElementById("btn-cal").addEventListener("click", () => {
+      document.body.classList.add("show-calendar");
+      document.getElementById("btn-cal").classList.add("active");
+      document.getElementById("btn-map").classList.remove("active");
+    });
+
     const colors = { lodging: "#2563eb", activity: "#ca8a04", transport: "#64748b", optional: "#9ca3af" };
 
     const stops = [
@@ -129,7 +373,6 @@
       { day: "Sep 15", color: "#10b981", weight: 4, legs: [["hi-14", "moraine"], ["moraine", "louise"], ["louise", "twojack"], ["twojack", "minnewanka"]] },
       { day: "Sep 16", color: "#8b5cf6", weight: 4, legs: [["minnewanka", "d17"]] },
       { day: "Sep 17", color: "#ef4444", weight: 4, legs: [["d17", "bow"], ["bow", "peyto"], ["peyto", "icefield"], ["icefield", "d5"]] },
-      /* Main lodging move + optional afternoon picks (alternatives, not one forced loop) */
       { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "8 6",
         legs: [
           ["d5", "hi-18"],
