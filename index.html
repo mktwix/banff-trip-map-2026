@@ -41,12 +41,12 @@
   <div id="map"></div>
   <div class="panel">
     <h1>Banff & Calgary Sep 2026</h1>
-    <div>22 stops · shared highways split into parallel lanes by day color.</div>
+    <div>22 stops · outbound/return use separate corridors · optional day is dashed.</div>
     <div class="legend">
       <div><span class="dot" style="background:#2563eb"></span> Lodging</div>
       <div><span class="dot" style="background:#ca8a04"></span> Activity</div>
       <div><span class="dot" style="background:#64748b"></span> Transport</div>
-      <div><span class="dot" style="background:#9ca3af"></span> Optional (pin only)</div>
+      <div><span class="dot" style="background:#9ca3af"></span> Optional</div>
       <div style="margin-top:8px;font-weight:600">Route by day</div>
       <div><span style="background:#64748b"></span> Sep 11 travel</div>
       <div><span style="background:#3b82f6"></span> Sep 12 west</div>
@@ -55,7 +55,7 @@
       <div><span style="background:#10b981"></span> Sep 15 lakes</div>
       <div><span style="background:#8b5cf6"></span> Sep 16 light day</div>
       <div><span style="background:#ef4444"></span> Sep 17 Icefields</div>
-      <div><span style="background:#9ca3af"></span> Sep 18 checkout</div>
+      <div><span style="background:#9ca3af;border-top:2px dashed #9ca3af;height:0"></span> Sep 18 optional loop</div>
       <div><span style="background:#475569"></span> Sep 19 return</div>
     </div>
   </div>
@@ -74,7 +74,7 @@
         html: "<span class='tag'>Sep 13 AM</span><h3>Johnston Canyon</h3><p>HI checkout ~11:00 · start early</p>" },
       { n: 5, id: "redstreak", name: "Redstreak A2", lat: 50.6342, lng: -116.0712, kind: "lodging", day: "Sep 13",
         html: "<span class='tag'>Sep 13–14</span><h3>Redstreak oTENTik A2</h3><p>INPC26-59887450B1 · check-in 15:00</p>" },
-      { n: 6, id: "radium-springs", name: "Radium Hot Springs", lat: 50.6167, lng: -116.0747, kind: "activity", day: "Sep 13–14", noRoute: true,
+      { n: 6, id: "radium-springs", name: "Radium Hot Springs", lat: 50.6167, lng: -116.0747, kind: "activity", day: "Sep 13–14",
         html: "<span class='tag'>Sep 13 eve or Sep 14 AM</span><h3>Radium Hot Springs</h3><p>Walk-in · ~2 km trail from Redstreak H Loop · ~$20/adult + pass</p>" },
       { n: 7, id: "hi-14", name: "HI Banff (14)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 14",
         html: "<span class='tag'>Sep 14 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5825418201 · PIN 8573</p>" },
@@ -96,13 +96,13 @@
         html: "<span class='tag'>Sep 17</span><h3>Columbia Icefield viewpoints</h3><p>Full day · skip paid Glacier Adventure unless splurge</p>" },
       { n: 16, id: "d5", name: "Tunnel Mtn D5", lat: 51.1826, lng: -115.5485, kind: "lodging", day: "Sep 17",
         html: "<span class='tag'>Sep 17–18</span><h3>Tunnel Mountain V2 D5</h3><p>INPC26-60395520B1 · check-in 15:00</p>" },
-      { n: 17, id: "banff-town", name: "Banff town", lat: 51.1784, lng: -115.5708, kind: "optional", day: "Sep 18", noRoute: true,
+      { n: 17, id: "banff-town", name: "Banff town", lat: 51.1784, lng: -115.5708, kind: "optional", day: "Sep 18",
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff town · Bow Falls</h3><p>Open afternoon after V2 checkout</p>" },
-      { n: 18, id: "vermilion", name: "Vermilion Lakes", lat: 51.1842, lng: -115.5986, kind: "optional", day: "Sep 18", noRoute: true,
+      { n: 18, id: "vermilion", name: "Vermilion Lakes", lat: 51.1842, lng: -115.5986, kind: "optional", day: "Sep 18",
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Vermilion Lakes</h3><p>Easy sunset walk near Banff</p>" },
-      { n: 19, id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "optional", day: "Sep 18", noRoute: true,
+      { n: 19, id: "canmore", name: "Canmore", lat: 51.089, lng: -115.3597, kind: "optional", day: "Sep 18",
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Canmore · Grassi Lakes</h3><p>Low-effort afternoon option</p>" },
-      { n: 20, id: "upper-springs", name: "Banff Upper Hot Springs", lat: 51.1511, lng: -115.5611, kind: "optional", day: "Sep 18", noRoute: true,
+      { n: 20, id: "upper-springs", name: "Banff Upper Hot Springs", lat: 51.1511, lng: -115.5611, kind: "optional", day: "Sep 18",
         html: "<span class='tag opt'>Sep 18 optional</span><h3>Banff Upper Hot Springs</h3><p>~$20/adult · walk-in</p>" },
       { n: 21, id: "hi-18", name: "HI Banff (18)", lat: 51.195, lng: -115.555, kind: "lodging", day: "Sep 18",
         html: "<span class='tag'>Sep 18 night</span><h3>HI Banff Alpine Centre</h3><p>Ref 5571085239 · PIN 8886</p>" },
@@ -110,31 +110,36 @@
         html: "<span class='tag'>Sep 19</span><h3>Return YYC</h3><p>Turo 16:00 · flight 00:50 Sep 20</p>" },
     ];
 
+    /**
+     * Distinct corridors for opposite-direction days so colors do not stack.
+     * North/west = outbound; south/east = return.
+     */
     const via = {
-      "hampton|hi-12": [[51.054, -114.38], [51.089, -115.36], [51.162, -115.52]],
-      "johnston|redstreak": [[51.18, -115.72], [50.98, -115.88], [50.78, -116.02]],
-      "hi-14|moraine": [[51.24, -115.68], [51.32, -116.02]],
-      "louise|twojack": [[51.36, -116.08], [51.28, -115.62]],
-      "d17|bow": [[51.42, -116.18], [51.58, -116.32]],
-      "icefield|d5": [[51.58, -116.32], [51.42, -116.18], [51.28, -115.62], [51.19, -115.55]],
-      "hi-18|yyc-out": [[51.162, -115.52], [51.089, -115.36], [51.054, -114.38]],
+      "hampton|hi-12": [[51.12, -114.45], [51.14, -114.95], [51.16, -115.35], [51.19, -115.50]],
+      "hi-18|yyc-out": [[51.14, -115.48], [51.05, -115.30], [51.02, -114.90], [51.05, -114.40]],
+      "johnston|redstreak": [[51.20, -115.90], [50.95, -116.00], [50.75, -116.08]],
+      "redstreak|hi-14": [[50.75, -115.95], [50.95, -115.78], [51.15, -115.62]],
+      "d17|bow": [[51.35, -116.25], [51.55, -116.40]],
+      "icefield|d5": [[51.90, -117.00], [51.55, -116.28], [51.30, -115.70], [51.20, -115.52]],
+      "d5|canmore": [[51.15, -115.48], [51.12, -115.42]],
+      "canmore|hi-18": [[51.14, -115.42], [51.18, -115.52]],
     };
 
     const routeGroups = [
       { day: "Sep 11", color: "#64748b", weight: 4, legs: [["yyc-in", "hampton"]] },
       { day: "Sep 12", color: "#3b82f6", weight: 4, legs: [["hampton", "hi-12"]] },
-      { day: "Sep 13", color: "#f59e0b", weight: 4, legs: [["hi-12", "johnston"], ["johnston", "redstreak"]] },
+      { day: "Sep 13", color: "#f59e0b", weight: 4, legs: [["hi-12", "johnston"], ["johnston", "redstreak"], ["redstreak", "radium-springs"]] },
       { day: "Sep 14", color: "#06b6d4", weight: 4, legs: [["redstreak", "hi-14"]] },
       { day: "Sep 15", color: "#10b981", weight: 4, legs: [["hi-14", "moraine"], ["moraine", "louise"], ["louise", "twojack"], ["twojack", "minnewanka"]] },
       { day: "Sep 16", color: "#8b5cf6", weight: 4, legs: [["minnewanka", "d17"]] },
       { day: "Sep 17", color: "#ef4444", weight: 4, legs: [["d17", "bow"], ["bow", "peyto"], ["peyto", "icefield"], ["icefield", "d5"]] },
-      { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "6 5", legs: [["d5", "hi-18"]] },
+      { day: "Sep 18", color: "#9ca3af", weight: 3, dash: "8 6",
+        legs: [["d5", "banff-town"], ["banff-town", "vermilion"], ["vermilion", "upper-springs"], ["upper-springs", "canmore"], ["canmore", "hi-18"]] },
       { day: "Sep 19", color: "#475569", weight: 4, legs: [["hi-18", "yyc-out"]] },
     ];
 
     const byId = (id) => stops.find((s) => s.id === id);
     const pt = (id) => { const s = byId(id); return [s.lat, s.lng]; };
-
     function legKey(fromId, toId) { return `${fromId}|${toId}`; }
 
     function driveLeg(fromId, toId) {
@@ -144,64 +149,6 @@
       const revKey = legKey(toId, fromId);
       const mids = via[key] || (via[revKey] ? [...via[revKey]].reverse() : []);
       return [start, ...mids, end];
-    }
-
-    const legLanes = {
-      "hampton|hi-12": 1,
-      "hi-18|yyc-out": -1,
-      "johnston|redstreak": 1,
-      "redstreak|hi-14": -1,
-      "d17|bow": 1,
-      "bow|peyto": 1,
-      "peyto|icefield": 1,
-      "icefield|d5": -1,
-    };
-
-    const corridorUse = new Map();
-
-    function corridorId(fromId, toId) {
-      const a = pt(fromId);
-      const b = pt(toId);
-      const k1 = `${a[0].toFixed(3)},${a[1].toFixed(3)}`;
-      const k2 = `${b[0].toFixed(3)},${b[1].toFixed(3)}`;
-      return k1 < k2 ? `${k1}|${k2}` : `${k2}|${k1}`;
-    }
-
-    function getLane(fromId, toId) {
-      const key = legKey(fromId, toId);
-      if (legLanes[key] !== undefined) return legLanes[key];
-      const cid = corridorId(fromId, toId);
-      const n = corridorUse.get(cid) || 0;
-      corridorUse.set(cid, n + 1);
-      return n % 2 === 0 ? 1 : -1;
-    }
-
-    /** Pin endpoints; separate only the middle of shared highways. */
-    function separatePath(points, lane) {
-      if (!lane || points.length < 2) return points;
-      const last = points.length - 1;
-      return points.map((p, i) => {
-        const fade = Math.sin(Math.PI * (i / last));
-        const prev = points[Math.max(0, i - 1)];
-        const next = points[Math.min(last, i + 1)];
-        const dLat = next[0] - prev[0];
-        const dLng = next[1] - prev[1];
-        const len = Math.hypot(dLat, dLng) || 1;
-        const off = lane * 0.005 * fade;
-        return [p[0] - (dLng / len) * off, p[1] + (dLat / len) * off];
-      });
-    }
-
-    function drawLeg(fromId, toId, style) {
-      const path = separatePath(driveLeg(fromId, toId), getLane(fromId, toId));
-      L.polyline(path, {
-        color: style.color,
-        weight: style.weight,
-        opacity: 0.9,
-        dashArray: style.dash || null,
-        lineCap: "round",
-        lineJoin: "round",
-      }).addTo(map);
     }
 
     function cellKey(lat, lng) { return `${lat.toFixed(4)},${lng.toFixed(4)}`; }
@@ -241,7 +188,16 @@
     }).addTo(map);
 
     routeGroups.forEach((group) => {
-      group.legs.forEach(([fromId, toId]) => drawLeg(fromId, toId, group));
+      group.legs.forEach(([fromId, toId]) => {
+        L.polyline(driveLeg(fromId, toId), {
+          color: group.color,
+          weight: group.weight,
+          opacity: 0.92,
+          dashArray: group.dash || null,
+          lineCap: "round",
+          lineJoin: "round",
+        }).addTo(map);
+      });
     });
 
     const bounds = [];
@@ -252,15 +208,6 @@
         .bindTooltip(g.names, { direction: "top", offset: [0, -12] })
         .addTo(map);
     });
-
-    stops.filter((s) => s.noRoute).forEach((s) => {
-      bounds.push([s.lat, s.lng]);
-      L.marker([s.lat, s.lng], { icon: pinIcon(String(s.n), colors[s.kind]) })
-        .bindPopup(s.html)
-        .bindTooltip(`${s.n}. ${s.name} (${s.day})`, { direction: "top", offset: [0, -12] })
-        .addTo(map);
-    });
-
     map.fitBounds(L.latLngBounds(bounds), { padding: [48, 48] });
   </script>
 </body>
