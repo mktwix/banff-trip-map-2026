@@ -167,8 +167,11 @@
 
     function offsetPath(path, lane) {
       if (!lane) return path;
-      const shift = lane * 0.0018;
+      const shift = Math.min(lane * 0.00035, 0.002);
       return path.map((point, index) => {
+        // Keep route endpoints attached to their pins. Only separate the
+        // middle of shared legs, otherwise the colored line appears airborne.
+        if (index === 0 || index === path.length - 1) return point;
         const prev = path[Math.max(0, index - 1)];
         const next = path[Math.min(path.length - 1, index + 1)];
         const dLat = next[0] - prev[0];
