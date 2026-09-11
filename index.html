@@ -44,7 +44,7 @@
     .view-toggle button.active { background: #111827; color: #fff; }
     #calendar {
       display: none; height: 100vh; overflow-y: auto;
-      padding: 56px 20px 40px; max-width: 920px; margin: 0 auto; line-height: 1.5; font-size: 14px;
+      padding: 56px 20px 40px; max-width: 960px; margin: 0 auto; line-height: 1.5; font-size: 14px;
     }
     body.show-calendar #map,
     body.show-calendar .panel { display: none; }
@@ -53,18 +53,19 @@
     #calendar .meta { color: #6b7280; margin-bottom: 1.25rem; }
     #calendar h2 { font-size: 1.1rem; margin: 1.75rem 0 0.6rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
     #calendar h3 { font-size: 1rem; margin: 1.2rem 0 0.4rem; }
-    #calendar table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 0.5rem 0 1rem; }
-    #calendar th, #calendar td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; vertical-align: top; }
-    #calendar th { background: #f9fafb; }
+    #calendar table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 0.5rem 0 1.2rem; }
+    #calendar th, #calendar td { border: 1px solid #e5e7eb; padding: 7px 9px; text-align: left; vertical-align: top; }
+    #calendar th { background: #f9fafb; font-weight: 600; }
     #calendar ul { padding-left: 1.2rem; margin: 0.35rem 0 0.8rem; }
     #calendar li { margin: 0.25rem 0; }
     #calendar a { color: #1a56db; }
     #calendar hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.5rem 0; }
     #calendar .booked { color: #047857; font-weight: 600; }
-    @media (max-width: 520px) {
+    @media (max-width: 600px) {
       .panel { left: 12px; right: 12px; max-width: none; top: auto; bottom: 12px; max-height: 36vh; }
       .view-toggle { left: 50%; transform: translateX(-50%); }
       #calendar { padding: 56px 14px 32px; }
+      #calendar table { display: block; overflow-x: auto; }
     }
   </style>
 </head>
@@ -155,6 +156,105 @@
     </table>
 
     <hr />
+
+    <hr />
+
+    <h2>10-Day Weather Forecast & Tactical Packing (Sep 11–20)</h2>
+    <p class="meta">Live forecast retrieved Sep 11, 2026 · Open-Meteo Banff & Canadian Rockies</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Location & Focus</th>
+          <th>Condition</th>
+          <th>Temp (High / Low)</th>
+          <th>Precipitation</th>
+          <th>Tactical Notes & Gear</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Fri Sep 11</strong></td>
+          <td>Calgary YYC (Arrival)</td>
+          <td>Overcast / light rain</td>
+          <td>10°C / 2°C</td>
+          <td>5.0mm (48%)</td>
+          <td>No outdoor impact · land 18:15 · straight to Hampton Inn Airport North.</td>
+        </tr>
+        <tr>
+          <td><strong>Sat Sep 12</strong></td>
+          <td>Banff Town & Vermilion</td>
+          <td>Overcast, dry</td>
+          <td>10°C / 3°C</td>
+          <td>0.0mm (6%)</td>
+          <td>Crisp fall air · town walks & Bow Falls · wear warm fleece + light windbreaker.</td>
+        </tr>
+        <tr>
+          <td><strong>Sun Sep 13</strong></td>
+          <td>Johnston Canyon & Radium</td>
+          <td>Light drizzle / evening rain</td>
+          <td>18°C / 2°C <em>(Radium 15°C)</em></td>
+          <td>0.3mm (39%) · Radium 4.9mm (62%)</td>
+          <td>Canyon canopy shields drizzle · evening mist makes soaking in Radium Hot Springs feel amazing!</td>
+        </tr>
+        <tr>
+          <td><strong>Mon Sep 14</strong></td>
+          <td>Kootenay to Banff & Tunnel Mtn</td>
+          <td>Light drizzle</td>
+          <td>9°C / 7°C</td>
+          <td>0.8mm (63%)</td>
+          <td>Marble Canyon walk is easy · wear trail shoes with grip for Tunnel Mountain summit trail.</td>
+        </tr>
+        <tr>
+          <td><strong>Tue Sep 15</strong></td>
+          <td>Moraine Lake & Two Jack</td>
+          <td>Cool, light drizzle</td>
+          <td>8°C / 5°C</td>
+          <td>2.2mm (63%)</td>
+          <td><strong>Coldest/dampest day:</strong> Thermal base layers, rain shell, toque & gloves for Moraine shuttle · warm sleeping bags for Two Jack oTENTik night (~5°C).</td>
+        </tr>
+        <tr>
+          <td><strong>Wed Sep 16</strong></td>
+          <td>Minnewanka & Tunnel Mtn V2</td>
+          <td>Overcast / clearing</td>
+          <td>18°C / 4°C</td>
+          <td>0.0mm (21%)</td>
+          <td>Temps jump +10°C! Easy afternoon on Hoodoos Trail · <strong>fill gas tank tonight</strong> before Icefields.</td>
+        </tr>
+        <tr>
+          <td><strong>Thu Sep 17</strong></td>
+          <td><strong>Icefields Parkway & Glacier</strong></td>
+          <td><strong>Clear sky ☀️</strong></td>
+          <td><strong>22°C / 6°C</strong> <em>(Glacier 11°C)</em></td>
+          <td><strong>0.0mm (0%)</strong></td>
+          <td><strong>PERFECT CONDITIONS:</strong> Zero clouds · Peyto Lake electric blue · bring wind jacket for Athabasca glacier toe walk.</td>
+        </tr>
+        <tr>
+          <td><strong>Fri Sep 18</strong></td>
+          <td><strong>Banff Gondola & Hot Springs</strong></td>
+          <td><strong>Clear sky ☀️</strong></td>
+          <td><strong>24°C / 8°C</strong></td>
+          <td><strong>0.0mm (1%)</strong></td>
+          <td><strong>Flawless for Gondola:</strong> Unlimited 360° visibility across 6 mountain ranges · follow with sunny outdoor mineral soak at Upper Hot Springs.</td>
+        </tr>
+        <tr>
+          <td><strong>Sat Sep 19</strong></td>
+          <td><strong>Canmore, Grassi Lakes & K-Country</strong></td>
+          <td><strong>Mainly clear ☀️</strong></td>
+          <td><strong>25°C / 9°C</strong></td>
+          <td><strong>0.0mm (3%)</strong></td>
+          <td><strong>Summer warmth (25°C):</strong> Brilliant for Grassi Lakes, Engine Bridge, Spray Lakes, and patio dining before 21:30 YYC return.</td>
+        </tr>
+        <tr>
+          <td><strong>Sun Sep 20</strong></td>
+          <td>YYC Flight → Toronto Pearson</td>
+          <td>Overcast</td>
+          <td>22°C / 11°C</td>
+          <td>0.0mm (13%)</td>
+          <td>00:50 AM departure · land YYZ 06:40 AM.</td>
+        </tr>
+      </tbody>
+    </table>
 
     <h2>Detailed Daily Plan (with Approximate Hours)</h2>
 
